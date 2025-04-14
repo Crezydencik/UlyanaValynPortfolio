@@ -16,8 +16,12 @@ export const useProjects = () => {
       // Transform the data to match the Project type
       const projects = data.map(project => ({
         ...project,
-        description: JSON.parse(project.description),
-        short_description: JSON.parse(project.short_description)
+        description: typeof project.description === 'string' 
+          ? JSON.parse(project.description) 
+          : project.description,
+        short_description: typeof project.short_description === 'string' 
+          ? JSON.parse(project.short_description) 
+          : project.short_description
       }));
       
       return projects as Project[];
@@ -40,11 +44,16 @@ export const useProject = (slug: string) => {
       // Transform the data to match the Project type
       const project = {
         ...data,
-        description: JSON.parse(data.description),
-        short_description: JSON.parse(data.short_description)
+        description: typeof data.description === 'string' 
+          ? JSON.parse(data.description) 
+          : data.description,
+        short_description: typeof data.short_description === 'string' 
+          ? JSON.parse(data.short_description) 
+          : data.short_description
       };
       
       return project as Project;
     },
+    enabled: !!slug,
   });
 };

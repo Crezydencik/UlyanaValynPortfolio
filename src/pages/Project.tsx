@@ -10,7 +10,7 @@ import { Skeleton } from '../components/ui/skeleton';
 const ProjectPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { data: project, isLoading, error } = useProject(slug || '');
 
   if (error) {
