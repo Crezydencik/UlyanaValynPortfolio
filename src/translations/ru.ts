@@ -1,4 +1,3 @@
-
 export default {
   navigation: {
     home: 'Главная',
@@ -78,5 +77,10 @@ export default {
   footer: {
     rights: '© 2023 Ulyana Logo. Все права защищены.',
     description: 'Журналист, Создатель контента и Маркетолог'
-  }
+  },
+  portfolio: {
+    viewProject: 'Посмотреть проект',
+    backToHome: 'Вернуться на главную',
+    projectNotFound: 'Проект не найден'
+  },
 };

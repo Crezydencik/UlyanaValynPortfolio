@@ -1,4 +1,3 @@
-
 export default {
   navigation: {
     home: 'Home',
@@ -50,7 +49,10 @@ export default {
   portfolio: {
     title: 'Portfolio',
     subtitle: 'A selection of my best work in journalism, video production, and marketing',
-    noProjects: 'No projects available.'
+    noProjects: 'No projects available.',
+    viewProject: 'View Project',
+    backToHome: 'Back to Home',
+    projectNotFound: 'Project not found'
   },
   certifications: {
     title: 'Certifications',
