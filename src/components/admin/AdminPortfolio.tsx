@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,6 +96,8 @@ const AdminPortfolio = () => {
 
       const projectData = {
         ...currentProject,
+        title: currentProject.title,
+        slug: currentProject.slug,
         description: JSON.stringify(currentProject.description),
         short_description: JSON.stringify(currentProject.short_description)
       };
@@ -185,7 +186,7 @@ const AdminPortfolio = () => {
         </div>
       </div>
       
-      <Tabs value={selectedLanguage} onValueChange={setSelectedLanguage}>
+      <Tabs value={selectedLanguage} onValueChange={(value: string) => setSelectedLanguage(value as Language)}>
         <TabsList className="mb-4">
           {Object.entries(languages).map(([code, name]) => (
             <TabsTrigger key={code} value={code}>{name}</TabsTrigger>
