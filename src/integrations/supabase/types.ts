@@ -9,6 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      about: {
+        Row: {
+          created_at: string | null
+          description: Json
+          id: string
+          image_url: string | null
+          subtitle: Json
+        }
+        Insert: {
+          created_at?: string | null
+          description?: Json
+          id?: string
+          image_url?: string | null
+          subtitle?: Json
+        }
+        Update: {
+          created_at?: string | null
+          description?: Json
+          id?: string
+          image_url?: string | null
+          subtitle?: Json
+        }
+        Relationships: []
+      }
+      certificates: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          image_url: string | null
+          issuer: Json
+          title: Json
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          image_url?: string | null
+          issuer?: Json
+          title?: Json
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          image_url?: string | null
+          issuer?: Json
+          title?: Json
+        }
+        Relationships: []
+      }
+      contact: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          location: Json
+          phone: string | null
+          social_links: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          location?: Json
+          phone?: string | null
+          social_links?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          location?: Json
+          phone?: string | null
+          social_links?: Json | null
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           created_at: string | null
@@ -42,6 +120,30 @@ export type Database = {
           technologies?: string[] | null
           title?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          level: number
+          name: Json
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          level?: number
+          name?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          level?: number
+          name?: Json
         }
         Relationships: []
       }
