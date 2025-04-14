@@ -49,7 +49,10 @@ export default {
   portfolio: {
     title: 'Портфолио',
     subtitle: 'Подборка моих лучших работ в журналистике, видеопроизводстве и маркетинге',
-    noProjects: 'Нет доступных проектов.'
+    noProjects: 'Нет доступных проектов.',
+    viewProject: 'Посмотреть проект',
+    backToHome: 'Вернуться на главную',
+    projectNotFound: 'Проект не найден'
   },
   certifications: {
     title: 'Сертификаты',
@@ -77,10 +80,5 @@ export default {
   footer: {
     rights: '© 2023 Ulyana Logo. Все права защищены.',
     description: 'Журналист, Создатель контента и Маркетолог'
-  },
-  portfolio: {
-    viewProject: 'Посмотреть проект',
-    backToHome: 'Вернуться на главную',
-    projectNotFound: 'Проект не найден'
-  },
+  }
 };

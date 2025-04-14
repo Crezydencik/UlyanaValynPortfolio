@@ -12,7 +12,15 @@ export const useProjects = () => {
         .select('*');
 
       if (error) throw error;
-      return data as Project[];
+      
+      // Transform the data to match the Project type
+      const projects = data.map(project => ({
+        ...project,
+        description: JSON.parse(project.description),
+        short_description: JSON.parse(project.short_description)
+      }));
+      
+      return projects as Project[];
     },
   });
 };
@@ -28,7 +36,15 @@ export const useProject = (slug: string) => {
         .single();
 
       if (error) throw error;
-      return data as Project;
+      
+      // Transform the data to match the Project type
+      const project = {
+        ...data,
+        description: JSON.parse(data.description),
+        short_description: JSON.parse(data.short_description)
+      };
+      
+      return project as Project;
     },
   });
 };
