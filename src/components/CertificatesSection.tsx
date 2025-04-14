@@ -6,9 +6,12 @@ const CertificatesSection: React.FC = () => {
   const { t } = useLanguage();
   
   return (
-    <section id="certificates" className="section">
-      <p className="text-sm text-primary font-semibold text-center mb-2">{t('certifications.subtitle')}</p>
-      <h2 className="section-title">{t('certifications.title')}</h2>
+    <section id="certificates" className="section-container bg-white">
+            <div className="text-center mb-12">
+
+      <p className="title-gradient text-xl font-medium mb-2">{t('certifications.subtitle')}</p>
+      <h2 className=" section-title text-4xl md:text-5xl font-bold mb-8 text-portfolio-black font-display">{t('certifications.title')}</h2>
+            </div>
       
       <div className="max-w-3xl mx-auto mt-12">
         <div className="certification-item">

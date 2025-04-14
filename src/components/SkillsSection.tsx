@@ -7,9 +7,12 @@ const SkillsSection: React.FC = () => {
   const { t } = useLanguage();
   
   return (
-    <section id="skills" className="section">
+    <section id="skills" className="section-container bg-portfolio-gray">
+           <div className="text-center mb-16">
+
       <h2 className="section-title">{t('skills.title')}</h2>
       <p className="section-subtitle">{t('skills.subtitle')}</p>
+           </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="card-skill">

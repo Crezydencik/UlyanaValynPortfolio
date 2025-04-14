@@ -6,6 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '../components/ui/button';
 import { ArrowLeft, Image as ImageIcon, Video } from 'lucide-react';
 import { Skeleton } from '../components/ui/skeleton';
+import Header from '../components/Header';
 
 const ProjectPage = () => {
   const { slug } = useParams();
@@ -41,18 +42,21 @@ const ProjectPage = () => {
   if (!project) return null;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
+             <Header />
+    <main className="flex-grow pt-24">
+
       <div 
         className="h-[400px] w-full bg-cover bg-center relative"
         style={{ backgroundImage: `url(${project.image_url})` }}
-      >
+        >
         <div className="absolute inset-0 bg-black/50">
           <div className="container mx-auto px-4 h-full flex flex-col justify-end pb-8">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')} 
               className="text-white mb-4 w-fit"
-            >
+              >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to projects
             </Button>
@@ -89,7 +93,7 @@ const ProjectPage = () => {
                 className="w-full h-full rounded-lg"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-              />
+                />
             </div>
           </div>
         )}
@@ -104,16 +108,17 @@ const ProjectPage = () => {
                 src={project.image_url}
                 alt={project.title}
                 className="w-full rounded-lg"
-              />
+                />
               <img 
                 src={project.image_url}
                 alt={project.title}
                 className="w-full rounded-lg"
-              />
+                />
             </div>
           )}
         </div>
       </div>
+          </main>
     </div>
   );
 };

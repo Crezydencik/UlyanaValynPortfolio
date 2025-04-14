@@ -6,8 +6,10 @@ const AboutSection: React.FC = () => {
   const { t } = useLanguage();
   
   return (
-    <section id="about" className="section bg-gray-50">
-      <h2 className="section-title">{t('about.title')}</h2>
+    <section id="about" className="section-container bg-white ">
+          <div className="text-center mb-16">
+             <h2 className="section-title mx-auto">{t('about.title')}</h2>
+          </div>
       
       <div className="flex flex-col md:flex-row gap-16 items-center">
         <div className="md:w-1/2">

@@ -4,17 +4,26 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const Footer: React.FC = () => {
   const { t } = useLanguage();
+  const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-gray-900 text-white py-8">
-      <div className="container mx-auto px-4 text-center">
-        <div className="ulyana-logo text-xl mb-4">
-          Ulyana<span>Logo</span>
-        </div>
-        <p className="text-gray-400 mb-6">{t('footer.description')}</p>
-        <p className="text-sm">{t('footer.rights')}</p>
+    <footer className="bg-portfolio-black text-white py-12">
+    <div className="container max-w-6xl mx-auto px-4">
+      <div className="flex flex-col justify-center items-center mb-8">
+        <h2 className="text-2xl font-display font-bold">
+          <span className="text-white">Ulyana</span>
+          <span className="title-gradient">Valyn</span>
+        </h2>
+        <p className="text-gray-400 mt-2">{t('footer.description')}</p>
       </div>
-    </footer>
+      
+      <div className="text-center">
+        <p className="text-gray-400 text-sm">
+          &copy; {currentYear} UlyanaValyn {t('footer.rights')}
+        </p>
+      </div>
+    </div>
+  </footer>
   );
 };
 

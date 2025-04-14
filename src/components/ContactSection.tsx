@@ -8,8 +8,11 @@ const ContactSection: React.FC = () => {
   
   return (
     <section id="contact" className="section bg-gray-50">
+          <div className="text-center mb-12">
+
       <h2 className="section-title">{t('contact.title')}</h2>
       <p className="text-center text-muted-foreground mb-12">{t('contact.subtitle')}</p>
+          </div>
       
       <div className="max-w-md mx-auto">
         <div className="mb-8">
