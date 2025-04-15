@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,10 +45,10 @@ const AdminCertificates = () => {
         // Transform data to match our component's structure
         const transformedCerts = data.map(cert => ({
           id: cert.id,
-          title: cert.title || { en: '', pl: '', ru: '' },
-          description: cert.description || { en: '', pl: '', ru: '' },
-          issuer: cert.issuer || { en: '', pl: '', ru: '' },
-          date: cert.date || '',
+          title: cert.title as Record<Language, string>,
+          description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
+          issuer: cert.issuer as Record<Language, string>,
+          date: cert.date,
           image_url: cert.image_url
         }));
 
@@ -76,9 +76,7 @@ const AdminCertificates = () => {
     setCertificates(prev => 
       prev.map(cert => {
         if (cert.id === certId) {
-          if (field === 'date') {
-            return { ...cert, [field]: value };
-          } else if (field === 'image_url') {
+          if (field === 'date' || field === 'image_url') {
             return { ...cert, [field]: value };
           } else {
             return {
@@ -188,10 +186,10 @@ const AdminCertificates = () => {
       // Update the state with fresh data from the database
       const transformedCerts = data.map(cert => ({
         id: cert.id,
-        title: cert.title || { en: '', pl: '', ru: '' },
-        description: cert.description || { en: '', pl: '', ru: '' },
-        issuer: cert.issuer || { en: '', pl: '', ru: '' },
-        date: cert.date || '',
+        title: cert.title as Record<Language, string>,
+        description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
+        issuer: cert.issuer as Record<Language, string>,
+        date: cert.date,
         image_url: cert.image_url
       }));
 
@@ -215,10 +213,12 @@ const AdminCertificates = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Loading certificates...</span>
-      </div>
+      <Card>
+        <CardContent className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading certificates...</span>
+        </CardContent>
+      </Card>
     );
   }
 

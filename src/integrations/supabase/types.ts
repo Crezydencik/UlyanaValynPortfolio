@@ -37,6 +37,7 @@ export type Database = {
         Row: {
           created_at: string | null
           date: string
+          description: Json | null
           id: string
           image_url: string | null
           issuer: Json
@@ -45,6 +46,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           date: string
+          description?: Json | null
           id?: string
           image_url?: string | null
           issuer?: Json
@@ -53,6 +55,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           date?: string
+          description?: Json | null
           id?: string
           image_url?: string | null
           issuer?: Json
@@ -68,6 +71,8 @@ export type Database = {
           location: Json
           phone: string | null
           social_links: Json | null
+          subtitle: Json | null
+          title: Json | null
         }
         Insert: {
           created_at?: string | null
@@ -76,6 +81,8 @@ export type Database = {
           location?: Json
           phone?: string | null
           social_links?: Json | null
+          subtitle?: Json | null
+          title?: Json | null
         }
         Update: {
           created_at?: string | null
@@ -84,6 +91,8 @@ export type Database = {
           location?: Json
           phone?: string | null
           social_links?: Json | null
+          subtitle?: Json | null
+          title?: Json | null
         }
         Relationships: []
       }

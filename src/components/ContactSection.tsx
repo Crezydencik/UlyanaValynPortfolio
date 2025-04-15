@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Instagram, Facebook, Twitter, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { ContactData } from './admin/contact/types';
+import { ContactData, transformSocialLinks } from './admin/contact/types';
+import { Language } from '@/utils/languageUtils';
 
 const ContactSection: React.FC = () => {
   const { t, language } = useLanguage();
@@ -25,10 +27,10 @@ const ContactSection: React.FC = () => {
         if (data) {
           setContactData({
             id: data.id,
-            title: data.title || { en: '', pl: '', ru: '' },
-            subtitle: data.subtitle || { en: '', pl: '', ru: '' },
+            title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
+            subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
-            social_links: data.social_links || []
+            social_links: transformSocialLinks(data.social_links)
           });
         }
       } catch (error) {

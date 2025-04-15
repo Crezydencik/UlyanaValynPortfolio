@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { languages, Language } from '@/utils/languageUtils';
@@ -10,7 +10,8 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContactForm } from './ContactForm';
 import { SocialLinks } from './SocialLinks';
-import { ContactData, SocialLink } from './types';
+import { ContactData, SocialLink, transformSocialLinks } from './types';
+import { Json } from '@/integrations/supabase/types';
 
 const AdminContact = () => {
   const { language } = useLanguage();
@@ -33,7 +34,7 @@ const AdminContact = () => {
         const { data, error } = await supabase
           .from('contact')
           .select('*')
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           throw error;
@@ -42,10 +43,10 @@ const AdminContact = () => {
         if (data) {
           setContactInfo({
             id: data.id,
-            title: data.title || { en: '', pl: '', ru: '' },
-            subtitle: data.subtitle || { en: '', pl: '', ru: '' },
+            title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
+            subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
-            social_links: data.social_links || []
+            social_links: transformSocialLinks(data.social_links)
           });
         }
       } catch (error) {

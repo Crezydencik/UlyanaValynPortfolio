@@ -1,5 +1,6 @@
 
 import { Language } from '@/utils/languageUtils';
+import { Json } from '@/integrations/supabase/types';
 
 export interface SocialLink {
   id: string;
@@ -27,4 +28,24 @@ export interface SocialLinksProps {
   onSocialLinkChange: (id: string, field: keyof SocialLink, value: string) => void;
   onAddSocialLink: () => void;
   onRemoveSocialLink: (id: string) => void;
+}
+
+export function transformSocialLinks(socialLinks: Json): SocialLink[] {
+  if (!socialLinks || typeof socialLinks !== 'object') return [];
+  
+  if (Array.isArray(socialLinks)) {
+    return socialLinks.map(link => {
+      if (typeof link === 'object' && link !== null) {
+        return {
+          id: link.id || '',
+          name: link.name || '',
+          url: link.url || '',
+          icon: link.icon || 'link'
+        };
+      }
+      return { id: '', name: '', url: '', icon: 'link' };
+    });
+  }
+  
+  return [];
 }

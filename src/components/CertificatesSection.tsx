@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Language } from '@/utils/languageUtils';
 
 interface Certificate {
   id: string;
-  title: Record<string, string>;
-  description: Record<string, string>;
-  issuer: Record<string, string>;
+  title: Record<Language, string>;
+  description: Record<Language, string>;
+  issuer: Record<Language, string>;
   date: string;
   image_url?: string | null;
 }
@@ -27,7 +28,18 @@ const CertificatesSection: React.FC = () => {
           .select('*');
 
         if (error) throw error;
-        setCertificates(data || []);
+
+        // Transform the data to match the Certificate type
+        const transformedCerts = data.map(cert => ({
+          id: cert.id,
+          title: cert.title as Record<Language, string>,
+          description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
+          issuer: cert.issuer as Record<Language, string>,
+          date: cert.date,
+          image_url: cert.image_url
+        }));
+
+        setCertificates(transformedCerts);
       } catch (error) {
         console.error('Error fetching certificates:', error);
       } finally {
