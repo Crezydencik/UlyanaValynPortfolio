@@ -1,23 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Instagram, Facebook, Twitter, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface SocialLink {
-  id: string;
-  name: string;
-  url: string;
-  icon: string;
-}
-
-interface ContactData {
-  id?: string;
-  title: Record<string, string>;
-  subtitle: Record<string, string>;
-  email: string;
-  social_links: SocialLink[];
-}
+import { ContactData } from './admin/contact/types';
 
 const ContactSection: React.FC = () => {
   const { t, language } = useLanguage();
@@ -38,7 +23,13 @@ const ContactSection: React.FC = () => {
         }
 
         if (data) {
-          setContactData(data);
+          setContactData({
+            id: data.id,
+            title: data.title || { en: '', pl: '', ru: '' },
+            subtitle: data.subtitle || { en: '', pl: '', ru: '' },
+            email: data.email || '',
+            social_links: data.social_links || []
+          });
         }
       } catch (error) {
         console.error('Error fetching contact data:', error);
