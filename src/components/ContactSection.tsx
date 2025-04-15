@@ -1,44 +1,118 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Mail, Instagram, Facebook, Twitter, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface SocialLink {
+  id: string;
+  name: string;
+  url: string;
+  icon: string;
+}
+
+interface ContactData {
+  id?: string;
+  title: Record<string, string>;
+  subtitle: Record<string, string>;
+  email: string;
+  social_links: SocialLink[];
+}
 
 const ContactSection: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [contactData, setContactData] = useState<ContactData | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('contact')
+          .select('*')
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+
+        if (data) {
+          setContactData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching contact data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactData();
+  }, []);
+
+  const getSocialIcon = (icon: string) => {
+    switch (icon.toLowerCase()) {
+      case 'instagram':
+        return <Instagram className="h-6 w-6 text-primary" />;
+      case 'facebook':
+        return <Facebook className="h-6 w-6 text-primary" />;
+      case 'twitter':
+        return <Twitter className="h-6 w-6 text-primary" />;
+      case 'mail':
+        return <Mail className="h-6 w-6 text-primary" />;
+      default:
+        return <LinkIcon className="h-6 w-6 text-primary" />;
+    }
+  };
   
   return (
     <section id="contact" className="section bg-gray-50">
-          <div className="text-center mb-12">
-
-      <h2 className="section-title">{t('contact.title')}</h2>
-      <p className="text-center text-muted-foreground mb-12">{t('contact.subtitle')}</p>
-          </div>
-      
-      <div className="max-w-md mx-auto">
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">{t('contact.info')}</h3>
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Mail className="h-5 w-5 text-primary" />
-            <span className="font-medium">{t('contact.email')}:</span>
-            <a href="mailto:info@ulyana.com" className="hover:text-primary">info@ulyana.com</a>
-          </div>
-        </div>
-        
-        <div>
-          <h3 className="text-xl font-semibold mb-4">{t('contact.followMe')}</h3>
-          <div className="flex gap-4">
-            <a href="#" className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-              <Instagram className="h-6 w-6 text-primary" />
-            </a>
-            <a href="#" className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-              <Facebook className="h-6 w-6 text-primary" />
-            </a>
-            <a href="#" className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-              <Twitter className="h-6 w-6 text-primary" />
-            </a>
-          </div>
-        </div>
+      <div className="text-center mb-12">
+        <h2 className="section-title">
+          {contactData?.title?.[language] || t('contact.title')}
+        </h2>
+        <p className="text-center text-muted-foreground mb-12">
+          {contactData?.subtitle?.[language] || t('contact.subtitle')}
+        </p>
       </div>
+      
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="max-w-md mx-auto">
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4">{t('contact.info')}</h3>
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Mail className="h-5 w-5 text-primary" />
+              <span className="font-medium">{t('contact.email')}:</span>
+              <a href={`mailto:${contactData?.email || 'info@ulyana.com'}`} className="hover:text-primary">
+                {contactData?.email || 'info@ulyana.com'}
+              </a>
+            </div>
+          </div>
+          
+          {contactData?.social_links && contactData.social_links.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">{t('contact.followMe')}</h3>
+              <div className="flex gap-4">
+                {contactData.social_links.map((link, index) => (
+                  <a 
+                    key={link.id || index} 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    {getSocialIcon(link.icon)}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 };
