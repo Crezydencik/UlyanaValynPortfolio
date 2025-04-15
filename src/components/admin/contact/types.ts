@@ -37,10 +37,10 @@ export function transformSocialLinks(socialLinks: Json): SocialLink[] {
     return socialLinks.map(link => {
       if (typeof link === 'object' && link !== null) {
         return {
-          id: link.id || '',
-          name: link.name || '',
-          url: link.url || '',
-          icon: link.icon || 'link'
+          id: typeof link.id === 'string' ? link.id : '',
+          name: typeof link.name === 'string' ? link.name : '',
+          url: typeof link.url === 'string' ? link.url : '',
+          icon: typeof link.icon === 'string' ? link.icon : 'link'
         };
       }
       return { id: '', name: '', url: '', icon: 'link' };
@@ -48,4 +48,8 @@ export function transformSocialLinks(socialLinks: Json): SocialLink[] {
   }
   
   return [];
+}
+
+export function socialLinksToJson(socialLinks: SocialLink[]): Json {
+  return socialLinks as unknown as Json;
 }

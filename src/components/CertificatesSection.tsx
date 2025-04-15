@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Loader2 } from 'lucide-react';
@@ -32,9 +31,9 @@ const CertificatesSection: React.FC = () => {
         // Transform the data to match the Certificate type
         const transformedCerts = data.map(cert => ({
           id: cert.id,
-          title: cert.title as Record<Language, string>,
+          title: cert.title as Record<Language, string> || { en: '', pl: '', ru: '' },
           description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
-          issuer: cert.issuer as Record<Language, string>,
+          issuer: cert.issuer as Record<Language, string> || { en: '', pl: '', ru: '' },
           date: cert.date,
           image_url: cert.image_url
         }));

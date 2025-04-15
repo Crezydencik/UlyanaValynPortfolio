@@ -10,8 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContactForm } from './ContactForm';
 import { SocialLinks } from './SocialLinks';
-import { ContactData, SocialLink, transformSocialLinks } from './types';
-import { Json } from '@/integrations/supabase/types';
+import { ContactData, SocialLink, transformSocialLinks, socialLinksToJson } from './types';
 
 const AdminContact = () => {
   const { language } = useLanguage();
@@ -124,7 +123,8 @@ const AdminContact = () => {
         title: contactInfo.title,
         subtitle: contactInfo.subtitle,
         email: contactInfo.email,
-        social_links: contactInfo.social_links
+        social_links: socialLinksToJson(contactInfo.social_links),
+        location: { en: '', pl: '', ru: '' } // Добавляем обязательное поле location
       };
 
       let response;

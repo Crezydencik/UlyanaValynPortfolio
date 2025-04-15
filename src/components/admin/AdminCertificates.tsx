@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +30,6 @@ const AdminCertificates = () => {
   const [saving, setSaving] = useState(false);
   const [editingCert, setEditingCert] = useState<string | null>(null);
 
-  // Fetch certificates from the database
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
@@ -45,9 +43,9 @@ const AdminCertificates = () => {
         // Transform data to match our component's structure
         const transformedCerts = data.map(cert => ({
           id: cert.id,
-          title: cert.title as Record<Language, string>,
+          title: cert.title as Record<Language, string> || { en: '', pl: '', ru: '' },
           description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
-          issuer: cert.issuer as Record<Language, string>,
+          issuer: cert.issuer as Record<Language, string> || { en: '', pl: '', ru: '' },
           date: cert.date,
           image_url: cert.image_url
         }));
@@ -186,9 +184,9 @@ const AdminCertificates = () => {
       // Update the state with fresh data from the database
       const transformedCerts = data.map(cert => ({
         id: cert.id,
-        title: cert.title as Record<Language, string>,
+        title: cert.title as Record<Language, string> || { en: '', pl: '', ru: '' },
         description: cert.description as Record<Language, string> || { en: '', pl: '', ru: '' },
-        issuer: cert.issuer as Record<Language, string>,
+        issuer: cert.issuer as Record<Language, string> || { en: '', pl: '', ru: '' },
         date: cert.date,
         image_url: cert.image_url
       }));

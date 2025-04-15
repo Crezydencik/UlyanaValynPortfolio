@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { languages, Language } from '@/utils/languageUtils';
 import { Facebook, Instagram, Twitter, Mail, Link, Plus, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 interface SocialLink {
   id: string;
@@ -27,6 +27,26 @@ interface ContactData {
   social_links: SocialLink[];
 }
 
+function transformSocialLinks(socialLinks: Json): SocialLink[] {
+  if (!socialLinks || typeof socialLinks !== 'object') return [];
+  
+  if (Array.isArray(socialLinks)) {
+    return socialLinks.map(link => {
+      if (typeof link === 'object' && link !== null) {
+        return {
+          id: typeof link.id === 'string' ? link.id : '',
+          name: typeof link.name === 'string' ? link.name : '',
+          url: typeof link.url === 'string' ? link.url : '',
+          icon: typeof link.icon === 'string' ? link.icon : 'link'
+        };
+      }
+      return { id: '', name: '', url: '', icon: 'link' };
+    });
+  }
+  
+  return [];
+}
+
 const AdminContact = () => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -41,7 +61,6 @@ const AdminContact = () => {
     social_links: []
   });
 
-  // Fetch contact data from the database
   useEffect(() => {
     const fetchContactData = async () => {
       try {
@@ -49,7 +68,7 @@ const AdminContact = () => {
         const { data, error } = await supabase
           .from('contact')
           .select('*')
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           throw error;
@@ -58,10 +77,10 @@ const AdminContact = () => {
         if (data) {
           setContactInfo({
             id: data.id,
-            title: data.title || { en: '', pl: '', ru: '' },
-            subtitle: data.subtitle || { en: '', pl: '', ru: '' },
+            title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
+            subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
-            social_links: data.social_links || []
+            social_links: transformSocialLinks(data.social_links)
           });
         }
       } catch (error) {
@@ -154,19 +173,19 @@ const AdminContact = () => {
         title: contactInfo.title,
         subtitle: contactInfo.subtitle,
         email: contactInfo.email,
-        social_links: contactInfo.social_links
+        // Преобразуем массив SocialLink в Json для Supabase
+        social_links: contactInfo.social_links as unknown as Json,
+        location: { en: '', pl: '', ru: '' } // Добавляем обязательное поле location
       };
 
       let response;
       
       if (contactInfo.id) {
-        // Update existing record
         response = await supabase
           .from('contact')
           .update(updateData)
           .eq('id', contactInfo.id);
       } else {
-        // Create new record
         response = await supabase
           .from('contact')
           .insert([updateData]);
