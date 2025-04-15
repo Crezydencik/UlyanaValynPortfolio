@@ -124,7 +124,7 @@ const AdminContact = () => {
         subtitle: contactInfo.subtitle,
         email: contactInfo.email,
         social_links: socialLinksToJson(contactInfo.social_links),
-        location: { en: '', pl: '', ru: '' } // Добавляем обязательное поле location
+        location: { en: '', pl: '', ru: '' } // Обязательное поле location
       };
 
       let response;

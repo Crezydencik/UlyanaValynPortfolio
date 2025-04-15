@@ -31,23 +31,19 @@ export interface SocialLinksProps {
 }
 
 export function transformSocialLinks(socialLinks: Json): SocialLink[] {
-  if (!socialLinks || typeof socialLinks !== 'object') return [];
+  if (!socialLinks || !Array.isArray(socialLinks)) return [];
   
-  if (Array.isArray(socialLinks)) {
-    return socialLinks.map(link => {
-      if (typeof link === 'object' && link !== null) {
-        return {
-          id: typeof link.id === 'string' ? link.id : '',
-          name: typeof link.name === 'string' ? link.name : '',
-          url: typeof link.url === 'string' ? link.url : '',
-          icon: typeof link.icon === 'string' ? link.icon : 'link'
-        };
-      }
-      return { id: '', name: '', url: '', icon: 'link' };
-    });
-  }
-  
-  return [];
+  return socialLinks.map(link => {
+    if (typeof link === 'object' && link !== null) {
+      return {
+        id: typeof link.id === 'string' ? link.id : '',
+        name: typeof link.name === 'string' ? link.name : '',
+        url: typeof link.url === 'string' ? link.url : '',
+        icon: typeof link.icon === 'string' ? link.icon : 'link'
+      };
+    }
+    return { id: '', name: '', url: '', icon: 'link' };
+  });
 }
 
 export function socialLinksToJson(socialLinks: SocialLink[]): Json {
