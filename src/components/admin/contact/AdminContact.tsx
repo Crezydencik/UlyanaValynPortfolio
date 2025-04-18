@@ -51,8 +51,8 @@ const AdminContact = () => {
       } catch (error) {
         console.error('Error fetching contact data:', error);
         toast({
-          title: 'Error',
-          description: 'Failed to load contact information',
+          title: 'Ошибка',
+          description: 'Не удалось загрузить контактную информацию',
           variant: 'destructive'
         });
       } finally {
@@ -127,6 +127,8 @@ const AdminContact = () => {
         location: { en: '', pl: '', ru: '' } // Обязательное поле location
       };
 
+      console.log("Saving contact data:", updateData);
+
       let response;
       
       if (contactInfo.id) {
@@ -140,17 +142,20 @@ const AdminContact = () => {
           .insert([updateData]);
       }
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error("Supabase error:", response.error);
+        throw response.error;
+      }
 
       toast({
-        title: 'Contact information updated',
-        description: 'Successfully saved contact information to the database',
+        title: 'Информация обновлена',
+        description: 'Контактная информация успешно сохранена',
       });
     } catch (error) {
       console.error('Error saving contact data:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to save contact information',
+        title: 'Ошибка',
+        description: 'Не удалось сохранить контактную информацию',
         variant: 'destructive'
       });
     } finally {
@@ -163,7 +168,7 @@ const AdminContact = () => {
       <Card>
         <CardContent className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2">Loading contact information...</span>
+          <span className="ml-2">Загрузка контактной информации...</span>
         </CardContent>
       </Card>
     );
@@ -172,9 +177,9 @@ const AdminContact = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Contact Information</CardTitle>
+        <CardTitle>Редактирование контактной информации</CardTitle>
         <CardDescription>
-          Update your contact details and social media links.
+          Обновите ваши контактные данные и ссылки на социальные сети.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -207,10 +212,10 @@ const AdminContact = () => {
               {saving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  Сохранение...
                 </>
               ) : (
-                'Save Changes'
+                'Сохранить изменения'
               )}
             </Button>
           </div>

@@ -35,14 +35,15 @@ export function transformSocialLinks(socialLinks: Json): SocialLink[] {
   
   return socialLinks.map(link => {
     if (typeof link === 'object' && link !== null) {
+      // Безопасное извлечение свойств из объекта
       return {
-        id: typeof link.id === 'string' ? link.id : '',
+        id: typeof link.id === 'string' ? link.id : String(Date.now()),
         name: typeof link.name === 'string' ? link.name : '',
         url: typeof link.url === 'string' ? link.url : '',
         icon: typeof link.icon === 'string' ? link.icon : 'link'
       };
     }
-    return { id: '', name: '', url: '', icon: 'link' };
+    return { id: String(Date.now()), name: '', url: '', icon: 'link' };
   });
 }
 
