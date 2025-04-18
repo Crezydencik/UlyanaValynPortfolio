@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Instagram, Facebook, Twitter, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { Mail, Instagram, Facebook, Twitter, Link as LinkIcon, Loader2, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ContactData, transformSocialLinks } from './admin/contact/types';
 import { Language } from '@/utils/languageUtils';
@@ -30,7 +30,8 @@ const ContactSection: React.FC = () => {
             title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
             subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
-            social_links: transformSocialLinks(data.social_links)
+            social_links: transformSocialLinks(data.social_links),
+            location: data.location as Record<Language, string> || { en: '', pl: '', ru: '' }
           });
         }
       } catch (error) {
@@ -75,8 +76,9 @@ const ContactSection: React.FC = () => {
         </div>
       ) : (
         <div className="max-w-md mx-auto">
-          <div className="mb-8">
+          <div className="mb-8 space-y-4">
             <h3 className="text-xl font-semibold mb-4">{t('contact.info')}</h3>
+            
             <div className="flex items-center gap-3 text-muted-foreground">
               <Mail className="h-5 w-5 text-primary" />
               <span className="font-medium">{t('contact.email')}:</span>
@@ -84,6 +86,14 @@ const ContactSection: React.FC = () => {
                 {contactData?.email || 'info@ulyana.com'}
               </a>
             </div>
+            
+            {contactData?.location && contactData.location[language] && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="font-medium">{t('contact.location')}:</span>
+                <span>{contactData.location[language]}</span>
+              </div>
+            )}
           </div>
           
           {contactData?.social_links && contactData.social_links.length > 0 && (

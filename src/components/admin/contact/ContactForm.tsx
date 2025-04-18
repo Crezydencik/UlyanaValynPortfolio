@@ -44,6 +44,17 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           placeholder="your@email.com"
         />
       </div>
+
+      <div>
+        <Label htmlFor={`location.${selectedLanguage}`}>Location</Label>
+        <Input
+          id={`location.${selectedLanguage}`}
+          name={`location.${selectedLanguage}`}
+          value={contactInfo.location[selectedLanguage] || ''}
+          onChange={onContactInfoChange}
+          placeholder="Your location"
+        />
+      </div>
     </div>
   );
 };

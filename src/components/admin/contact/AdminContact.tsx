@@ -23,7 +23,8 @@ const AdminContact = () => {
     title: { en: '', pl: '', ru: '' },
     subtitle: { en: '', pl: '', ru: '' },
     email: '',
-    social_links: []
+    social_links: [],
+    location: { en: '', pl: '', ru: '' }
   });
 
   useEffect(() => {
@@ -45,7 +46,8 @@ const AdminContact = () => {
             title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
             subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
-            social_links: transformSocialLinks(data.social_links)
+            social_links: transformSocialLinks(data.social_links),
+            location: data.location as Record<Language, string> || { en: '', pl: '', ru: '' }
           });
         }
       } catch (error) {
@@ -124,7 +126,7 @@ const AdminContact = () => {
         subtitle: contactInfo.subtitle,
         email: contactInfo.email,
         social_links: socialLinksToJson(contactInfo.social_links),
-        location: { en: '', pl: '', ru: '' } // Обязательное поле location
+        location: contactInfo.location
       };
 
       console.log("Saving contact data:", updateData);
