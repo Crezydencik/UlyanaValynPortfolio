@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ContactData, SocialLink, transformSocialLinks } from '@/components/admin/contact/types';
+import { ContactData, SocialLink, transformSocialLinks, socialLinksToJson } from '@/components/admin/contact/types';
 import { Language } from '@/utils/languageUtils';
+import { Json } from '@/integrations/supabase/types';
 
 export const useContactData = () => {
   const { toast } = useToast();
@@ -108,11 +109,11 @@ export const useContactData = () => {
       setSaving(true);
       
       const updateData = {
-        title: contactInfo.title,
-        subtitle: contactInfo.subtitle,
+        title: contactInfo.title as Json,
+        subtitle: contactInfo.subtitle as Json,
         email: contactInfo.email,
-        social_links: contactInfo.social_links,
-        location: contactInfo.location
+        social_links: socialLinksToJson(contactInfo.social_links),
+        location: contactInfo.location as Json
       };
 
       console.log("Saving contact data:", updateData);
