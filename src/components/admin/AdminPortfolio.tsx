@@ -1,44 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
+import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { languages, Language } from '@/utils/languageUtils';
+import { Language } from '@/utils/languageUtils';
 import { useProjects } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash, Edit, Image, Video, X, ExternalLink, Check } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Project } from '@/types/project';
-import { Json } from '@/integrations/supabase/types';
+import { ProjectForm } from './portfolio/ProjectForm';
+import { ProjectList } from './portfolio/ProjectList';
+
+const emptyProject: Partial<Project> = {
+  title: '',
+  slug: '',
+  description: { en: '', pl: '', ru: '' },
+  short_description: { en: '', pl: '', ru: '' },
+  image_url: '',
+  cover_image: '',
+  additional_images: [],
+  video_url: '',
+  technologies: []
+};
 
 const AdminPortfolio = () => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { toast } = useToast();
   const { data: projects, isLoading, refetch } = useProjects();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newTechnology, setNewTechnology] = useState('');
-  const [newImageUrl, setNewImageUrl] = useState('');
-  
-  const emptyProject: Partial<Project> = {
-    title: '',
-    slug: '',
-    description: { en: '', pl: '', ru: '' },
-    short_description: { en: '', pl: '', ru: '' },
-    image_url: '',
-    cover_image: '',
-    additional_images: [],
-    video_url: '',
-    technologies: []
-  };
-  
   const [currentProject, setCurrentProject] = useState<Partial<Project>>(emptyProject);
 
   const handleEditProject = (project: Project) => {
@@ -52,71 +45,6 @@ const AdminPortfolio = () => {
   const handleCreateProject = () => {
     setCurrentProject({...emptyProject});
     setIsCreateDialogOpen(true);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setCurrentProject(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev] as Record<string, any>,
-          [child]: value
-        }
-      }));
-    } else {
-      setCurrentProject(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleAddTechnology = () => {
-    if (newTechnology.trim() && currentProject.technologies) {
-      setCurrentProject(prev => ({
-        ...prev,
-        technologies: [...(prev.technologies || []), newTechnology.trim()]
-      }));
-      setNewTechnology('');
-    }
-  };
-
-  const handleRemoveTechnology = (index: number) => {
-    if (currentProject.technologies) {
-      const newTechnologies = [...currentProject.technologies];
-      newTechnologies.splice(index, 1);
-      setCurrentProject(prev => ({
-        ...prev,
-        technologies: newTechnologies
-      }));
-    }
-  };
-
-  const handleAddImage = () => {
-    if (newImageUrl.trim()) {
-      setCurrentProject(prev => ({
-        ...prev,
-        additional_images: [...(prev.additional_images || []), newImageUrl.trim()]
-      }));
-      setNewImageUrl('');
-    }
-  };
-
-  const handleRemoveImage = (index: number) => {
-    if (currentProject.additional_images) {
-      const newImages = [...currentProject.additional_images];
-      newImages.splice(index, 1);
-      setCurrentProject(prev => ({
-        ...prev,
-        additional_images: newImages
-      }));
-    }
-  };
-
-  const handleSetCoverImage = (imageUrl: string) => {
-    setCurrentProject(prev => ({
-      ...prev,
-      cover_image: imageUrl
-    }));
   };
 
   const handleSaveProject = async () => {
@@ -143,26 +71,19 @@ const AdminPortfolio = () => {
         technologies: currentProject.technologies
       };
 
-      console.log("Saving project data:", projectData);
-
       let response;
       if (currentProject.id) {
-        // Update existing project
         response = await supabase
           .from('projects')
           .update(projectData)
           .eq('id', currentProject.id);
       } else {
-        // Create new project
         response = await supabase
           .from('projects')
           .insert(projectData);
       }
 
-      if (response.error) {
-        console.error("Supabase error:", response.error);
-        throw response.error;
-      }
+      if (response.error) throw response.error;
       
       toast({
         title: currentProject.id ? 'Project updated' : 'Project created',
@@ -207,200 +128,6 @@ const AdminPortfolio = () => {
     }
   };
 
-  const ProjectForm = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            name="title"
-            value={currentProject.title || ''}
-            onChange={handleInputChange}
-            placeholder="Project title"
-          />
-        </div>
-        <div>
-          <Label htmlFor="slug">Slug</Label>
-          <Input
-            id="slug"
-            name="slug"
-            value={currentProject.slug || ''}
-            onChange={handleInputChange}
-            placeholder="project-slug"
-          />
-        </div>
-      </div>
-      
-      <Tabs value={selectedLanguage} onValueChange={(value: string) => setSelectedLanguage(value as Language)}>
-        <TabsList className="mb-4">
-          {Object.entries(languages).map(([code, name]) => (
-            <TabsTrigger key={code} value={code}>{name}</TabsTrigger>
-          ))}
-        </TabsList>
-        
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor={`short_description.${selectedLanguage}`}>Short Description</Label>
-            <Input
-              id={`short_description.${selectedLanguage}`}
-              name={`short_description.${selectedLanguage}`}
-              value={(currentProject.short_description?.[selectedLanguage]) || ''}
-              onChange={handleInputChange}
-              placeholder="Brief description of the project"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor={`description.${selectedLanguage}`}>Full Description</Label>
-            <Textarea
-              id={`description.${selectedLanguage}`}
-              name={`description.${selectedLanguage}`}
-              value={(currentProject.description?.[selectedLanguage]) || ''}
-              onChange={handleInputChange}
-              rows={5}
-              placeholder="Detailed description of the project"
-            />
-          </div>
-        </div>
-      </Tabs>
-      
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="image_url">Main Image URL</Label>
-          <div className="flex gap-2">
-            <Input
-              id="image_url"
-              name="image_url"
-              value={currentProject.image_url || ''}
-              onChange={handleInputChange}
-              placeholder="https://example.com/image.jpg"
-            />
-            {currentProject.image_url && (
-              <Button variant="outline" size="icon" type="button" asChild>
-                <a href={currentProject.image_url} target="_blank" rel="noopener noreferrer">
-                  <Image className="h-4 w-4" />
-                </a>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <Label>Additional Images</Label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {currentProject.additional_images?.map((imageUrl, index) => (
-              <div key={index} className="relative group border rounded-md p-2">
-                <img 
-                  src={imageUrl} 
-                  alt={`Project image ${index + 1}`}
-                  className="h-24 w-24 object-cover rounded"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white"
-                    onClick={() => handleSetCoverImage(imageUrl)}
-                    title="Set as cover image"
-                  >
-                    {currentProject.cover_image === imageUrl ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Image className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white"
-                    onClick={() => handleRemoveImage(index)}
-                    title="Remove image"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white"
-                    onClick={() => window.open(imageUrl, '_blank')}
-                    title="View image"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-                {currentProject.cover_image === imageUrl && (
-                  <Badge className="absolute top-2 right-2">Cover</Badge>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-2 mt-2">
-            <Input
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Add image URL"
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
-            />
-            <Button type="button" onClick={handleAddImage}>
-              Add
-            </Button>
-          </div>
-        </div>
-        
-        <div>
-          <Label htmlFor="video_url">Video URL</Label>
-          <div className="flex gap-2">
-            <Input
-              id="video_url"
-              name="video_url"
-              value={currentProject.video_url || ''}
-              onChange={handleInputChange}
-              placeholder="https://example.com/video.mp4"
-            />
-            {currentProject.video_url && (
-              <Button variant="outline" size="icon" type="button" asChild>
-                <a href={currentProject.video_url} target="_blank" rel="noopener noreferrer">
-                  <Video className="h-4 w-4" />
-                </a>
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        <div>
-          <Label>Technologies</Label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {currentProject.technologies?.map((tech, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                {tech}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-4 w-4 p-0 ml-1"
-                  onClick={() => handleRemoveTechnology(index)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            ))}
-          </div>
-          <div className="flex gap-2 mt-2">
-            <Input
-              value={newTechnology}
-              onChange={(e) => setNewTechnology(e.target.value)}
-              placeholder="Add a technology"
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
-            />
-            <Button type="button" onClick={handleAddTechnology}>
-              Add
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   if (isLoading) {
     return <div className="text-center py-8">Loading projects...</div>;
   }
@@ -419,49 +146,11 @@ const AdminPortfolio = () => {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {projects && projects.length > 0 ? (
-            projects.map(project => (
-              <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  {project.cover_image && (
-                    <img 
-                      src={project.cover_image} 
-                      alt={project.title}
-                      className="h-16 w-16 object-cover rounded"
-                    />
-                  )}
-                  <div>
-                    <h3 className="font-medium">{project.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate max-w-sm">
-                      {project.short_description[language]}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleEditProject(project)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDeleteProject(project.id)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              No projects found. Add your first project to get started.
-            </div>
-          )}
-        </div>
+        <ProjectList 
+          projects={projects || []}
+          onEditProject={handleEditProject}
+          onDeleteProject={handleDeleteProject}
+        />
       </CardContent>
 
       {/* Edit Project Dialog */}
@@ -473,7 +162,12 @@ const AdminPortfolio = () => {
               Make changes to your project details.
             </DialogDescription>
           </DialogHeader>
-          <ProjectForm />
+          <ProjectForm
+            currentProject={currentProject}
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
+            onProjectChange={setCurrentProject}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
@@ -494,7 +188,12 @@ const AdminPortfolio = () => {
               Add a new project to your portfolio.
             </DialogDescription>
           </DialogHeader>
-          <ProjectForm />
+          <ProjectForm
+            currentProject={currentProject}
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
+            onProjectChange={setCurrentProject}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
