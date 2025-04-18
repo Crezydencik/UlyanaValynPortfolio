@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { languages, Language } from '@/utils/languageUtils';
 import { useProjects } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash, Edit, Image, Video, X } from 'lucide-react';
+import { Plus, Trash, Edit, Image, Video, X, ExternalLink, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Project } from '@/types/project';
+import { Json } from '@/integrations/supabase/types';
 
 const AdminPortfolio = () => {
   const { t, language } = useLanguage();
@@ -23,6 +25,7 @@ const AdminPortfolio = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newTechnology, setNewTechnology] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
   
   const emptyProject: Partial<Project> = {
     title: '',
@@ -30,6 +33,8 @@ const AdminPortfolio = () => {
     description: { en: '', pl: '', ru: '' },
     short_description: { en: '', pl: '', ru: '' },
     image_url: '',
+    cover_image: '',
+    additional_images: [],
     video_url: '',
     technologies: []
   };
@@ -37,7 +42,10 @@ const AdminPortfolio = () => {
   const [currentProject, setCurrentProject] = useState<Partial<Project>>(emptyProject);
 
   const handleEditProject = (project: Project) => {
-    setCurrentProject(project);
+    setCurrentProject({
+      ...project,
+      additional_images: project.additional_images || []
+    });
     setIsEditDialogOpen(true);
   };
 
@@ -83,6 +91,34 @@ const AdminPortfolio = () => {
     }
   };
 
+  const handleAddImage = () => {
+    if (newImageUrl.trim()) {
+      setCurrentProject(prev => ({
+        ...prev,
+        additional_images: [...(prev.additional_images || []), newImageUrl.trim()]
+      }));
+      setNewImageUrl('');
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    if (currentProject.additional_images) {
+      const newImages = [...currentProject.additional_images];
+      newImages.splice(index, 1);
+      setCurrentProject(prev => ({
+        ...prev,
+        additional_images: newImages
+      }));
+    }
+  };
+
+  const handleSetCoverImage = (imageUrl: string) => {
+    setCurrentProject(prev => ({
+      ...prev,
+      cover_image: imageUrl
+    }));
+  };
+
   const handleSaveProject = async () => {
     try {
       if (!currentProject.title || !currentProject.slug) {
@@ -99,8 +135,15 @@ const AdminPortfolio = () => {
         title: currentProject.title,
         slug: currentProject.slug,
         description: JSON.stringify(currentProject.description),
-        short_description: JSON.stringify(currentProject.short_description)
+        short_description: JSON.stringify(currentProject.short_description),
+        image_url: currentProject.image_url,
+        cover_image: currentProject.cover_image || currentProject.image_url,
+        additional_images: JSON.stringify(currentProject.additional_images || []),
+        video_url: currentProject.video_url,
+        technologies: currentProject.technologies
       };
+
+      console.log("Saving project data:", projectData);
 
       let response;
       if (currentProject.id) {
@@ -116,7 +159,10 @@ const AdminPortfolio = () => {
           .insert(projectData);
       }
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error("Supabase error:", response.error);
+        throw response.error;
+      }
       
       toast({
         title: currentProject.id ? 'Project updated' : 'Project created',
@@ -221,7 +267,7 @@ const AdminPortfolio = () => {
       
       <div className="space-y-4">
         <div>
-          <Label htmlFor="image_url">Image URL</Label>
+          <Label htmlFor="image_url">Main Image URL</Label>
           <div className="flex gap-2">
             <Input
               id="image_url"
@@ -237,6 +283,68 @@ const AdminPortfolio = () => {
                 </a>
               </Button>
             )}
+          </div>
+        </div>
+
+        <div>
+          <Label>Additional Images</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {currentProject.additional_images?.map((imageUrl, index) => (
+              <div key={index} className="relative group border rounded-md p-2">
+                <img 
+                  src={imageUrl} 
+                  alt={`Project image ${index + 1}`}
+                  className="h-24 w-24 object-cover rounded"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white"
+                    onClick={() => handleSetCoverImage(imageUrl)}
+                    title="Set as cover image"
+                  >
+                    {currentProject.cover_image === imageUrl ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Image className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white"
+                    onClick={() => handleRemoveImage(index)}
+                    title="Remove image"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white"
+                    onClick={() => window.open(imageUrl, '_blank')}
+                    title="View image"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+                {currentProject.cover_image === imageUrl && (
+                  <Badge className="absolute top-2 right-2">Cover</Badge>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-2">
+            <Input
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="Add image URL"
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
+            />
+            <Button type="button" onClick={handleAddImage}>
+              Add
+            </Button>
           </div>
         </div>
         
@@ -315,11 +423,20 @@ const AdminPortfolio = () => {
           {projects && projects.length > 0 ? (
             projects.map(project => (
               <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-medium">{project.title}</h3>
-                  <p className="text-sm text-muted-foreground truncate max-w-sm">
-                    {project.short_description[language]}
-                  </p>
+                <div className="flex items-center gap-4">
+                  {project.cover_image && (
+                    <img 
+                      src={project.cover_image} 
+                      alt={project.title}
+                      className="h-16 w-16 object-cover rounded"
+                    />
+                  )}
+                  <div>
+                    <h3 className="font-medium">{project.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate max-w-sm">
+                      {project.short_description[language]}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -349,7 +466,7 @@ const AdminPortfolio = () => {
 
       {/* Edit Project Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Project</DialogTitle>
             <DialogDescription>
@@ -370,7 +487,7 @@ const AdminPortfolio = () => {
 
       {/* Create Project Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
             <DialogDescription>

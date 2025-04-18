@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Project } from '@/types/project';
+import { Json } from '@/integrations/supabase/types';
 
 export const useProjects = () => {
   return useQuery({
@@ -21,7 +22,12 @@ export const useProjects = () => {
           : project.description,
         short_description: typeof project.short_description === 'string' 
           ? JSON.parse(project.short_description) 
-          : project.short_description
+          : project.short_description,
+        additional_images: project.additional_images 
+          ? (Array.isArray(project.additional_images) 
+              ? project.additional_images 
+              : JSON.parse(project.additional_images))
+          : []
       }));
       
       return projects as Project[];
@@ -49,7 +55,12 @@ export const useProject = (slug: string) => {
           : data.description,
         short_description: typeof data.short_description === 'string' 
           ? JSON.parse(data.short_description) 
-          : data.short_description
+          : data.short_description,
+        additional_images: data.additional_images 
+          ? (Array.isArray(data.additional_images) 
+              ? data.additional_images 
+              : JSON.parse(data.additional_images))
+          : []
       };
       
       return project as Project;
