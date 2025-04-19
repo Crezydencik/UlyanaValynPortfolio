@@ -33,6 +33,24 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          title: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: Json | null
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           created_at: string | null
@@ -134,25 +152,28 @@ export type Database = {
       }
       skills: {
         Row: {
-          category: string
-          created_at: string | null
+          category: string | null
+          created_at: string
+          icon: string | null
           id: string
-          level: number
-          name: Json
+          level: number | null
+          name: Json | null
         }
         Insert: {
-          category: string
-          created_at?: string | null
+          category?: string | null
+          created_at?: string
+          icon?: string | null
           id?: string
-          level?: number
-          name?: Json
+          level?: number | null
+          name?: Json | null
         }
         Update: {
-          category?: string
-          created_at?: string | null
+          category?: string | null
+          created_at?: string
+          icon?: string | null
           id?: string
-          level?: number
-          name?: Json
+          level?: number | null
+          name?: Json | null
         }
         Relationships: []
       }

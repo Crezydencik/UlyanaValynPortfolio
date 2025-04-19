@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProject } from '../hooks/useProjects';
@@ -42,18 +41,13 @@ const ProjectPage = () => {
 
   if (!project) return null;
 
-  // Use cover_image if available, otherwise fall back to image_url
-  const coverImage = project.cover_image || project.image_url;
-  // Get additional images excluding the cover image to avoid duplication
-  const additionalImages = (project.additional_images || []).filter(img => img !== coverImage);
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow pt-24">
         <div 
           className="h-[400px] w-full bg-cover bg-center relative"
-          style={{ backgroundImage: `url(${coverImage})` }}
+          style={{ backgroundImage: `url(${project.cover_image || project.image_url})` }}
         >
           <div className="absolute inset-0 bg-black/50">
             <div className="container mx-auto px-4 h-full flex flex-col justify-end pb-8">
@@ -63,7 +57,7 @@ const ProjectPage = () => {
                 className="text-white mb-4 w-fit"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to projects
+                {t('back')}
               </Button>
               <h1 className="text-4xl font-bold text-white mb-4">{project.title}</h1>
               
@@ -75,11 +69,11 @@ const ProjectPage = () => {
               
               <div className="flex gap-4">
                 <span className="inline-flex items-center text-white">
-                  <ImageIcon className="mr-2 h-4 w-4" /> Photo
+                  <ImageIcon className="mr-2 h-4 w-4" /> {t('photo')}
                 </span>
                 {project.video_url && (
                   <span className="inline-flex items-center text-white">
-                    <Video className="mr-2 h-4 w-4" /> Video
+                    <Video className="mr-2 h-4 w-4" /> {t('video')}
                   </span>
                 )}
                 <span className="inline-flex items-center text-white">
@@ -93,14 +87,14 @@ const ProjectPage = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="prose max-w-none mb-12">
             <p className="text-lg leading-relaxed">
-              {project.description[language]}
+              {project.description?.[language] || project.description?.['en'] || ''}
             </p>
           </div>
 
           {project.video_url && (
             <div className="mb-12">
               <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Video className="mr-2 h-6 w-6" /> Video
+                <Video className="mr-2 h-6 w-6" /> {t('video')}
               </h2>
               <div className="aspect-video">
                 <iframe
@@ -115,23 +109,23 @@ const ProjectPage = () => {
 
           <div>
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <ImageIcon className="mr-2 h-6 w-6" /> Photos
+              <ImageIcon className="mr-2 h-6 w-6" /> {t('photos')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Main image */}
               <div className="relative group">
                 <img 
-                  src={coverImage}
+                  src={project.cover_image || project.image_url}
                   alt={project.title}
                   className="w-full rounded-lg aspect-square object-cover"
                 />
                 <div className="absolute top-2 right-2">
-                  <Badge>Cover</Badge>
+                  <Badge>{t('cover')}</Badge>
                 </div>
               </div>
               
               {/* Additional images */}
-              {additionalImages.map((imageUrl, index) => (
+              {project.additional_images?.map((imageUrl, index) => (
                 <div key={index} className="relative group">
                   <img 
                     src={imageUrl}
