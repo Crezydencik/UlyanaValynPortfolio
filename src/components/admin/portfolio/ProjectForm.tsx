@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -72,6 +73,23 @@ export const ProjectForm = ({
     }
   };
 
+  const handleAddImage = () => {
+    if (newImageUrl.trim()) {
+      onProjectChange({
+        ...currentProject,
+        additional_images: [...(currentProject.additional_images || []), newImageUrl.trim()]
+      });
+      setNewImageUrl('');
+    }
+  };
+
+  const handleSetCoverImage = (imageUrl: string) => {
+    onProjectChange({
+      ...currentProject,
+      cover_image: imageUrl
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
@@ -141,10 +159,11 @@ export const ProjectForm = ({
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded">
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
                       className="text-white"
-                      onClick={() => handleInputChange({ target: { name: 'image_url', value: '' } } as any)}
+                      onClick={() => onProjectChange({ ...currentProject, image_url: '' })}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -158,7 +177,7 @@ export const ProjectForm = ({
                     placeholder="Main image URL"
                     className="w-full"
                     value={currentProject.image_url || ''}
-                    onChange={(e) => handleInputChange({ target: { name: 'image_url', value: e.target.value } } as any)}
+                    onChange={(e) => onProjectChange({ ...currentProject, image_url: e.target.value })}
                   />
                 </div>
               )}
@@ -174,6 +193,7 @@ export const ProjectForm = ({
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded">
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
                     className="text-white"
@@ -189,13 +209,11 @@ export const ProjectForm = ({
                     <X className="h-4 w-4" />
                   </Button>
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
                     className="text-white"
-                    onClick={() => onProjectChange({
-                      ...currentProject,
-                      cover_image: imageUrl
-                    })}
+                    onClick={() => handleSetCoverImage(imageUrl)}
                   >
                     {currentProject.cover_image === imageUrl ? (
                       <Check className="h-4 w-4" />
@@ -220,15 +238,8 @@ export const ProjectForm = ({
                   className="mb-2"
                 />
                 <Button 
-                  onClick={() => {
-                    if (newImageUrl.trim()) {
-                      onProjectChange({
-                        ...currentProject,
-                        additional_images: [...(currentProject.additional_images || []), newImageUrl.trim()]
-                      });
-                      setNewImageUrl('');
-                    }
-                  }}
+                  type="button"
+                  onClick={handleAddImage}
                   className="w-full"
                   size="sm"
                 >
@@ -259,17 +270,11 @@ export const ProjectForm = ({
               <Badge key={index} variant="secondary" className="flex items-center gap-1">
                 {tech}
                 <Button
+                  type="button"
                   variant="ghost"
                   size="icon"
                   className="h-4 w-4 p-0 ml-1"
-                  onClick={() => {
-                    const newTechnologies = [...(currentProject.technologies || [])];
-                    newTechnologies.splice(index, 1);
-                    onProjectChange({
-                      ...currentProject,
-                      technologies: newTechnologies
-                    });
-                  }}
+                  onClick={() => handleRemoveTechnology(index)}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -284,26 +289,13 @@ export const ProjectForm = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  if (newTechnology.trim()) {
-                    onProjectChange({
-                      ...currentProject,
-                      technologies: [...(currentProject.technologies || []), newTechnology.trim()]
-                    });
-                    setNewTechnology('');
-                  }
+                  handleAddTechnology();
                 }
               }}
             />
             <Button 
-              onClick={() => {
-                if (newTechnology.trim()) {
-                  onProjectChange({
-                    ...currentProject,
-                    technologies: [...(currentProject.technologies || []), newTechnology.trim()]
-                  });
-                  setNewTechnology('');
-                }
-              }}
+              type="button"
+              onClick={handleAddTechnology}
             >
               Add
             </Button>

@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSkills } from '@/hooks/useSkills';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Award, Code, GraduationCap, Heart, Rocket } from 'lucide-react';
+import { Award } from 'lucide-react';
 import * as lucideIcons from 'lucide-react';
 
 const SkillsSection = () => {
@@ -35,11 +36,16 @@ const SkillsSection = () => {
   }
 
   const renderSkillItem = (skill: any) => {
-    const IconComponent = skill.icon ? lucideIcons[skill.icon as keyof typeof lucideIcons] : Award;
+    let IconComponent: React.ElementType = Award;
+    
+    if (skill.icon && typeof skill.icon === 'string' && skill.icon in lucideIcons) {
+      IconComponent = lucideIcons[skill.icon as keyof typeof lucideIcons] as React.ElementType;
+    }
+    
     return (
       <div key={skill.id} className="flex flex-col items-center p-4">
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-          {IconComponent && <IconComponent className="w-8 h-8 text-primary" />}
+          <IconComponent className="w-8 h-8 text-primary" />
         </div>
         <h3 className="text-lg font-semibold">{skill.name?.[language] || skill.name?.en}</h3>
         <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">

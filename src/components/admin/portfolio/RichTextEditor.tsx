@@ -26,6 +26,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
     <div className="border rounded-lg overflow-hidden">
       <div className="flex flex-wrap gap-2 p-2 border-b bg-muted">
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -35,6 +36,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
           <Bold className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -44,6 +46,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
           <Italic className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -53,6 +56,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
           <Heading1 className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
@@ -62,6 +66,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
           <Heading2 className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -71,6 +76,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
           <List className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
