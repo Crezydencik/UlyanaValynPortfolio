@@ -3,6 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Project } from '@/types/project';
 
+interface ProjectData {
+  id: string;
+  title: string;
+  description: string | null;
+  short_description: string | null;
+  image_url: string | null;
+  cover_image?: string | null;
+  additional_images?: string[];
+  video_url: string | null;
+  technologies: string[] | null;
+  created_at: string;
+  slug: string;
+}
+
 export const useProjects = () => {
   return useQuery({
     queryKey: ['projects'],
@@ -14,7 +28,7 @@ export const useProjects = () => {
       if (error) throw error;
       
       // Transform the data to match the Project type
-      const projects = data.map(project => ({
+      const projects = data.map((project: ProjectData) => ({
         ...project,
         description: typeof project.description === 'string' 
           ? JSON.parse(project.description) 

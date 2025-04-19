@@ -1,8 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Language } from '@/utils/languageUtils';
 import * as Icons from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface Skill {
   id: string;
@@ -36,7 +38,7 @@ const CATEGORY_TITLES: Record<string, Record<Language, string>> = {
   }
 };
 
-const DEFAULT_ICON_COMPONENT = Icons.CheckCircle ;
+const DEFAULT_ICON = Icons.CheckCircle;
 
 const SkillsSection: React.FC = () => {
   const { t, language } = useLanguage();
@@ -105,12 +107,14 @@ const SkillsSection: React.FC = () => {
               </h3>
               <ul className="space-y-2">
                 {group.skills.map((skill) => {
-                  const IconComponent =
-                    Icons[skill.icon as keyof typeof Icons] || DEFAULT_ICON_COMPONENT;
+                  // Fix the icon component usage
+                  const Icon = skill.icon && Icons[skill.icon as keyof typeof Icons] 
+                    ? Icons[skill.icon as keyof typeof Icons] 
+                    : DEFAULT_ICON;
 
                   return (
                     <li key={skill.id} className="flex items-center gap-3">
-                      <IconComponent className="text-primary w-5 h-5 MR-3" />
+                      <Icon className="text-primary w-5 h-5 MR-3" />
                       <span className="font-medium">{skill.name[language]}</span>
                     </li>
                   );

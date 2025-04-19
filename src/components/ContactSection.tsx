@@ -30,6 +30,7 @@ const ContactSection: React.FC = () => {
             title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
             subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
             email: data.email || '',
+            phone: data.phone || '',
             social_links: transformSocialLinks(data.social_links),
             location: data.location as Record<Language, string> || { en: '', pl: '', ru: '' }
           });
