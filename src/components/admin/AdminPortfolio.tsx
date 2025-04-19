@@ -65,7 +65,7 @@ const AdminPortfolio = () => {
         short_description: JSON.stringify(currentProject.short_description),
         image_url: currentProject.image_url,
         cover_image: currentProject.cover_image || currentProject.image_url,
-        additional_images: JSON.stringify(currentProject.additional_images || []),
+        additional_images: currentProject.additional_images || [],
         video_url: currentProject.video_url,
         technologies: currentProject.technologies
       };
