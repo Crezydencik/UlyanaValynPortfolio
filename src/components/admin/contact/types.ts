@@ -8,12 +8,20 @@ export interface SocialLink {
   url: string;
   icon: string;
 }
+export interface AboutData {
+  id: string;
+  // title: Record<Language, string>;
+  subtitle: Record<Language, string>;
+  description: Record<Language, string>;
+  image_url?: string | null;
+}
 
 export interface ContactData {
   id?: string;
   title: Record<Language, string>;
   subtitle: Record<Language, string>;
   email: string;
+  phone: string;
   social_links: SocialLink[];
   location: Record<Language, string>;
 }

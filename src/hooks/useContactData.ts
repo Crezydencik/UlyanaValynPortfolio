@@ -14,6 +14,7 @@ export const useContactData = () => {
     title: { en: '', pl: '', ru: '' },
     subtitle: { en: '', pl: '', ru: '' },
     email: '',
+    phone: '',
     social_links: [],
     location: { en: '', pl: '', ru: '' }
   });
@@ -40,6 +41,7 @@ export const useContactData = () => {
           title: data.title as Record<Language, string> || { en: '', pl: '', ru: '' },
           subtitle: data.subtitle as Record<Language, string> || { en: '', pl: '', ru: '' },
           email: data.email || '',
+          phone: data.phone || '',
           social_links: transformSocialLinks(data.social_links),
           location: data.location as Record<Language, string> || { en: '', pl: '', ru: '' }
         });

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,14 +9,50 @@ export interface Skill {
   name: Record<Language, string>;
   category: string;
   level: number;
+  icon?: string;
   created_at?: string;
 }
 
 export interface SkillCategory {
   id: string;
-  title: string;
+  title: Record<Language, string>;
   skills: Skill[];
 }
+
+export interface SkillCategoryRecord {
+  id: string;
+  title: Record<Language, string>;
+}
+
+const PREDEFINED_CATEGORIES: SkillCategory[] = [
+  {
+    id: 'journalism',
+    title: {
+      en: 'Journalism',
+      ru: 'Журналистика',
+      pl: 'Dziennikarstwo',
+    },
+    skills: [],
+  },
+  {
+    id: 'video-editing',
+    title: {
+      en: 'Video Editing',
+      ru: 'Видеомонтаж',
+      pl: 'Montaż Wideo',
+    },
+    skills: [],
+  },
+  {
+    id: 'marketing',
+    title: {
+      en: 'Marketing',
+      ru: 'Маркетинг',
+      pl: 'Marketing',
+    },
+    skills: [],
+  },
+];
 
 export const useSkills = () => {
   return useQuery({
@@ -28,28 +63,23 @@ export const useSkills = () => {
         .select('*');
 
       if (error) throw error;
-      
-      // Transform the data to match the Skill type
+
       const skills = data.map(skill => ({
         ...skill,
         name: typeof skill.name === 'string' ? JSON.parse(skill.name) : skill.name,
       })) as Skill[];
-      
-      // Organize skills by category
-      const skillsByCategory: Record<string, SkillCategory> = {};
-      
+
+      const skillsByCategory = PREDEFINED_CATEGORIES.reduce((acc, category) => {
+        acc[category.id] = { ...category };
+        return acc;
+      }, {} as Record<string, SkillCategory>);
+
       skills.forEach(skill => {
-        if (!skillsByCategory[skill.category]) {
-          skillsByCategory[skill.category] = {
-            id: skill.category,
-            title: skill.category,
-            skills: []
-          };
+        if (skillsByCategory[skill.category]) {
+          skillsByCategory[skill.category].skills.push(skill);
         }
-        
-        skillsByCategory[skill.category].skills.push(skill);
       });
-      
+
       return Object.values(skillsByCategory);
     },
   });
@@ -58,24 +88,24 @@ export const useSkills = () => {
 export const useSaveSkill = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (skill: Omit<Skill, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('skills')
         .insert({
           name: skill.name as Json,
           category: skill.category,
-          level: skill.level
+          level: Number(skill.level),
+          icon: skill.icon || null,
         });
-        
+
       if (error) throw error;
-      return data;
     },
     onSuccess: () => {
       toast({
         title: 'Skill saved',
-        description: 'Skill has been successfully saved'
+        description: 'Skill has been successfully saved',
       });
       queryClient.invalidateQueries({ queryKey: ['skills'] });
     },
@@ -84,16 +114,16 @@ export const useSaveSkill = () => {
       toast({
         title: 'Error',
         description: 'Failed to save skill',
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 };
 
 export const useUpdateSkill = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (skill: Skill) => {
       const { data, error } = await supabase
@@ -101,17 +131,18 @@ export const useUpdateSkill = () => {
         .update({
           name: skill.name as Json,
           category: skill.category,
-          level: skill.level
+          level: Number(skill.level),
+          icon: skill.icon || null,
         })
         .eq('id', skill.id);
-        
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       toast({
         title: 'Skill updated',
-        description: 'Skill has been successfully updated'
+        description: 'Skill has been successfully updated',
       });
       queryClient.invalidateQueries({ queryKey: ['skills'] });
     },
@@ -120,29 +151,29 @@ export const useUpdateSkill = () => {
       toast({
         title: 'Error',
         description: 'Failed to update skill',
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 };
 
 export const useDeleteSkill = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('skills')
         .delete()
         .eq('id', id);
-        
+
       if (error) throw error;
     },
     onSuccess: () => {
       toast({
         title: 'Skill deleted',
-        description: 'Skill has been successfully deleted'
+        description: 'Skill has been successfully deleted',
       });
       queryClient.invalidateQueries({ queryKey: ['skills'] });
     },
@@ -151,8 +182,8 @@ export const useDeleteSkill = () => {
       toast({
         title: 'Error',
         description: 'Failed to delete skill',
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 };
