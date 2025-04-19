@@ -116,6 +116,8 @@ export type Database = {
       }
       projects: {
         Row: {
+          additional_images: string[] | null
+          cover_image: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -127,6 +129,8 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          additional_images?: string[] | null
+          cover_image?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -138,6 +142,8 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          additional_images?: string[] | null
+          cover_image?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
