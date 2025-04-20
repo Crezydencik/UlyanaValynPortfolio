@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ProjectFormBasicFields } from "./ProjectFormBasicFields";
 import { ProjectFormContent } from "./ProjectFormContent";
@@ -19,20 +20,17 @@ export const ProjectForm = ({
   const [localPhotos, setLocalPhotos] = useState<string[]>(currentProject.additional_images || []);
   const mainPhoto = currentProject.image_url || null;
 
-  // Пробросим изменения фото вверх
+  // Handle photo changes and update the project
   const handlePhotosChange = (urls: string[]) => {
     setLocalPhotos(urls);
     onProjectChange({ ...currentProject, additional_images: urls });
-    if (urls.length === 0) {
-      onProjectChange({ ...currentProject, image_url: "" });
-    }
   };
 
   const handleMainPhotoChange = (url: string) => {
     onProjectChange({ ...currentProject, image_url: url });
   };
 
-  // Вспомогательные хендлеры для текстов на текущем языке
+  // Handle text changes based on current language
   const handleDescriptionChange = (value: string) => {
     onProjectChange({
       ...currentProject,
@@ -53,7 +51,7 @@ export const ProjectForm = ({
     });
   };
 
-  // Видео
+  // Video handling
   const handleVideoUrlChange = (url: string) => {
     onProjectChange({
       ...currentProject,
@@ -63,7 +61,11 @@ export const ProjectForm = ({
 
   return (
     <div className="space-y-6">
-      <ProjectFormBasicFields currentProject={currentProject} onProjectChange={onProjectChange} />
+      <ProjectFormBasicFields 
+        currentProject={currentProject} 
+        onProjectChange={onProjectChange} 
+        selectedLanguage={selectedLanguage}
+      />
       <ProjectFormContent
         selectedLanguage={selectedLanguage}
         setSelectedLanguage={setSelectedLanguage}

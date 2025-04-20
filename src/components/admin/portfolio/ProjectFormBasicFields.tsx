@@ -6,13 +6,39 @@ import { Label } from "@/components/ui/label";
 interface ProjectFormBasicFieldsProps {
   currentProject: any;
   onProjectChange: (values: any) => void;
+  selectedLanguage?: string;
 }
 
-export const ProjectFormBasicFields = ({ currentProject, onProjectChange }: ProjectFormBasicFieldsProps) => {
+export const ProjectFormBasicFields = ({ 
+  currentProject, 
+  onProjectChange, 
+  selectedLanguage = 'en' 
+}: ProjectFormBasicFieldsProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    onProjectChange({ ...currentProject, [name]: value });
+    
+    // For title field, update based on selected language
+    if (name === "title" && selectedLanguage) {
+      onProjectChange({ 
+        ...currentProject, 
+        title_translations: {
+          ...currentProject.title_translations,
+          [selectedLanguage]: value
+        }
+      });
+    } else {
+      onProjectChange({ ...currentProject, [name]: value });
+    }
   };
+
+  // Get the appropriate title based on selected language if available
+  const getLocalizedTitle = () => {
+    if (currentProject.title_translations && currentProject.title_translations[selectedLanguage]) {
+      return currentProject.title_translations[selectedLanguage];
+    }
+    return currentProject.title || '';
+  };
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -34,9 +60,9 @@ export const ProjectFormBasicFields = ({ currentProject, onProjectChange }: Proj
         <Input 
           id="title"
           name="title"
-          value={currentProject.title || ''}
+          value={getLocalizedTitle()}
           onChange={handleChange}
-          placeholder="Title"
+          placeholder={`Title (${selectedLanguage})`}
         />
       </div>
       <div>

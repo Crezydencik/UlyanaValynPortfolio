@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { RichTextEditor } from "./RichTextEditor";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ProjectFormVideo } from "./ProjectFormVideo";
 import { ProjectFormLanguages } from "./ProjectFormLanguages";
 import { ProjectFormPhotos } from "./ProjectFormPhotos";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProjectFormContentProps {
   selectedLanguage: string;
@@ -37,6 +39,7 @@ export const ProjectFormContent = ({
   videoUrl,
   onVideoUrlChange
 }: ProjectFormContentProps) => {
+  const { t } = useLanguage();
   const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
 
   return (
@@ -54,14 +57,22 @@ export const ProjectFormContent = ({
         value={shortDescription}
         onChange={e => onShortDescriptionChange(e.target.value)}
         className="min-h-[80px]"
-        placeholder="Enter a short description"
+        placeholder={`Enter a short description (${selectedLanguage})`}
       />
 
       <div className="flex gap-2 mt-2">
-        <Button type="button" variant={mediaType === "photo" ? "secondary" : "outline"} onClick={() => setMediaType("photo")}>
+        <Button 
+          type="button" 
+          variant={mediaType === "photo" ? "secondary" : "outline"} 
+          onClick={() => setMediaType("photo")}
+        >
           Photo
         </Button>
-        <Button type="button" variant={mediaType === "video" ? "secondary" : "outline"} onClick={() => setMediaType("video")}>
+        <Button 
+          type="button" 
+          variant={mediaType === "video" ? "secondary" : "outline"} 
+          onClick={() => setMediaType("video")}
+        >
           Video
         </Button>
       </div>
