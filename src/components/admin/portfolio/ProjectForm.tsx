@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ProjectFormBasicFields } from "./ProjectFormBasicFields";
 import { ProjectFormContent } from "./ProjectFormContent";
@@ -18,11 +17,19 @@ export const ProjectForm = ({
   onProjectChange,
 }: ProjectFormProps) => {
   const [localPhotos, setLocalPhotos] = useState<string[]>(currentProject.additional_images || []);
+  const mainPhoto = currentProject.image_url || null;
 
   // Пробросим изменения фото вверх
   const handlePhotosChange = (urls: string[]) => {
     setLocalPhotos(urls);
     onProjectChange({ ...currentProject, additional_images: urls });
+    if (urls.length === 0) {
+      onProjectChange({ ...currentProject, image_url: "" });
+    }
+  };
+
+  const handleMainPhotoChange = (url: string) => {
+    onProjectChange({ ...currentProject, image_url: url });
   };
 
   // Вспомогательные хендлеры для текстов на текущем языке
@@ -66,6 +73,8 @@ export const ProjectForm = ({
         onShortDescriptionChange={handleShortDescriptionChange}
         photos={localPhotos}
         onPhotosChange={handlePhotosChange}
+        mainPhoto={mainPhoto}
+        onMainPhotoChange={handleMainPhotoChange}
         videoUrl={currentProject.video_url || ""}
         onVideoUrlChange={handleVideoUrlChange}
       />

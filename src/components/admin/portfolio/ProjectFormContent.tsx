@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { RichTextEditor } from "./RichTextEditor";
 import { Label } from "@/components/ui/label";
@@ -7,6 +6,7 @@ import { ProjectFormMediaTabs } from "./ProjectFormMediaTabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ProjectFormVideo } from "./ProjectFormVideo";
 import { ProjectFormLanguages } from "./ProjectFormLanguages";
+import { ProjectFormPhotos } from "./ProjectFormPhotos";
 
 interface ProjectFormContentProps {
   selectedLanguage: string;
@@ -17,6 +17,8 @@ interface ProjectFormContentProps {
   onShortDescriptionChange: (desc: string) => void;
   photos: string[];
   onPhotosChange: (urls: string[]) => void;
+  mainPhoto: string | null;
+  onMainPhotoChange: (url: string) => void;
   videoUrl: string;
   onVideoUrlChange: (url: string) => void;
 }
@@ -30,6 +32,8 @@ export const ProjectFormContent = ({
   onShortDescriptionChange,
   photos,
   onPhotosChange,
+  mainPhoto,
+  onMainPhotoChange,
   videoUrl,
   onVideoUrlChange
 }: ProjectFormContentProps) => {
@@ -64,9 +68,11 @@ export const ProjectFormContent = ({
 
       {/* Media type switch - show images or video UI */}
       {mediaType === "photo" ? (
-        <ProjectFormMediaTabs
+        <ProjectFormPhotos
           photos={photos}
           onPhotosChange={onPhotosChange}
+          mainPhoto={mainPhoto}
+          onMainPhotoChange={onMainPhotoChange}
         />
       ) : (
         <ProjectFormVideo videoUrl={videoUrl} onVideoUrlChange={onVideoUrlChange} />
@@ -74,4 +80,3 @@ export const ProjectFormContent = ({
     </div>
   );
 };
-
