@@ -1,16 +1,16 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Language } from '@/utils/languageUtils';
 import { useProjects } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Project } from '@/types/project';
-import { ProjectForm } from './portfolio/ProjectForm';
 import { ProjectList } from './portfolio/ProjectList';
+import { AdminPortfolioHeader } from './portfolio/AdminPortfolioHeader';
+import { ProjectEditDialog } from './portfolio/ProjectEditDialog';
+import { ProjectCreateDialog } from './portfolio/ProjectCreateDialog';
 
 const emptyProject: Partial<Project> = {
   title: '',
@@ -133,17 +133,7 @@ const AdminPortfolio = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Manage Portfolio</CardTitle>
-          <CardDescription>
-            Add, edit, or remove projects from your portfolio.
-          </CardDescription>
-        </div>
-        <Button onClick={handleCreateProject}>
-          <Plus className="mr-2 h-4 w-4" /> Add Project
-        </Button>
-      </CardHeader>
+      <AdminPortfolioHeader onCreate={handleCreateProject} />
       <CardContent>
         <ProjectList 
           projects={projects || []}
@@ -151,58 +141,24 @@ const AdminPortfolio = () => {
           onDeleteProject={handleDeleteProject}
         />
       </CardContent>
-
-      {/* Edit Project Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Project</DialogTitle>
-            <DialogDescription>
-              Make changes to your project details.
-            </DialogDescription>
-          </DialogHeader>
-          <ProjectForm
-            currentProject={currentProject}
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-            onProjectChange={setCurrentProject}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveProject}>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Project Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
-            <DialogDescription>
-              Add a new project to your portfolio.
-            </DialogDescription>
-          </DialogHeader>
-          <ProjectForm
-            currentProject={currentProject}
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-            onProjectChange={setCurrentProject}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveProject}>
-              Create Project
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProjectEditDialog
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        currentProject={currentProject}
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+        onProjectChange={setCurrentProject}
+        onSave={handleSaveProject}
+      />
+      <ProjectCreateDialog
+        isCreateDialogOpen={isCreateDialogOpen}
+        setIsCreateDialogOpen={setIsCreateDialogOpen}
+        currentProject={currentProject}
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+        onProjectChange={setCurrentProject}
+        onSave={handleSaveProject}
+      />
     </Card>
   );
 };
