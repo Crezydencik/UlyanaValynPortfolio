@@ -4,26 +4,54 @@ import { RichTextEditor } from "./RichTextEditor";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ProjectFormMediaTabs } from "./ProjectFormMediaTabs";
+import { Textarea } from "@/components/ui/textarea";
+import { ProjectFormVideo } from "./ProjectFormVideo";
+import { ProjectFormLanguages } from "./ProjectFormLanguages";
 
 interface ProjectFormContentProps {
+  selectedLanguage: string;
+  setSelectedLanguage: (lang: string) => void;
   description: string;
   onDescriptionChange: (desc: string) => void;
+  shortDescription: string;
+  onShortDescriptionChange: (desc: string) => void;
   photos: string[];
   onPhotosChange: (urls: string[]) => void;
+  videoUrl: string;
+  onVideoUrlChange: (url: string) => void;
 }
 
 export const ProjectFormContent = ({
+  selectedLanguage,
+  setSelectedLanguage,
   description,
   onDescriptionChange,
+  shortDescription,
+  onShortDescriptionChange,
   photos,
   onPhotosChange,
+  videoUrl,
+  onVideoUrlChange
 }: ProjectFormContentProps) => {
-  const [mediaType, setMediaType] = useState("photo");
+  const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
 
   return (
     <div className="space-y-4">
-      <Label>projectContent</Label>
+      <ProjectFormLanguages
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+      />
+
+      <Label>Description</Label>
       <RichTextEditor value={description} onChange={onDescriptionChange} />
+
+      <Label>Short Description</Label>
+      <Textarea
+        value={shortDescription}
+        onChange={e => onShortDescriptionChange(e.target.value)}
+        className="min-h-[80px]"
+        placeholder="Enter a short description"
+      />
 
       <div className="flex gap-2 mt-2">
         <Button type="button" variant={mediaType === "photo" ? "secondary" : "outline"} onClick={() => setMediaType("photo")}>
@@ -33,7 +61,17 @@ export const ProjectFormContent = ({
           Video
         </Button>
       </div>
-      <ProjectFormMediaTabs photos={photos} onPhotosChange={onPhotosChange} />
+
+      {/* Media type switch - show images or video UI */}
+      {mediaType === "photo" ? (
+        <ProjectFormMediaTabs
+          photos={photos}
+          onPhotosChange={onPhotosChange}
+        />
+      ) : (
+        <ProjectFormVideo videoUrl={videoUrl} onVideoUrlChange={onVideoUrlChange} />
+      )}
     </div>
   );
 };
+
