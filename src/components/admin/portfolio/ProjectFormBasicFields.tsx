@@ -2,6 +2,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Project } from "../../../types/project";
 
 interface ProjectFormBasicFieldsProps {
   currentProject: any;
@@ -17,13 +18,13 @@ export const ProjectFormBasicFields = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     
-    // For title field, update based on selected language
-    if (name === "title" && selectedLanguage) {
-      onProjectChange({ 
-        ...currentProject, 
-        title_translations: {
-          ...currentProject.title_translations,
-          [selectedLanguage]: value
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      onProjectChange({
+        ...currentProject,
+        [parent]: {
+          ...(currentProject[parent as keyof Project] as Record<string, any>),
+          [child]: value
         }
       });
     } else {
@@ -40,20 +41,10 @@ export const ProjectFormBasicFields = ({
   };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="">
       <div>
         <Label htmlFor="id">Project ID</Label>
         <Input id="id" name="id" value={currentProject.id || ''} disabled />
-      </div>
-      <div>
-        <Label htmlFor="author">Author</Label>
-        <Input 
-          id="author"
-          name="author"
-          value={currentProject.author || ''}
-          onChange={handleChange}
-          placeholder="Author"
-        />
       </div>
       <div>
         <Label htmlFor="title">Title</Label>
@@ -63,27 +54,6 @@ export const ProjectFormBasicFields = ({
           value={getLocalizedTitle()}
           onChange={handleChange}
           placeholder={`Title (${selectedLanguage})`}
-        />
-      </div>
-      <div>
-        <Label htmlFor="date">Date</Label>
-        <Input 
-          id="date"
-          name="date"
-          type="date"
-          value={currentProject.date || ''}
-          onChange={handleChange}
-          placeholder="Date"
-        />
-      </div>
-      <div>
-        <Label htmlFor="category">Category</Label>
-        <Input 
-          id="category"
-          name="category"
-          value={currentProject.category || ''}
-          onChange={handleChange}
-          placeholder="Category"
         />
       </div>
       <div>

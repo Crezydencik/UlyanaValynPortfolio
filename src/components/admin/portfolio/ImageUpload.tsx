@@ -1,10 +1,10 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, Image as ImageIcon, Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   mainImageUrl: string;
@@ -23,13 +23,34 @@ export const ImageUpload = ({
   onAdditionalImagesChange,
   onCoverImageChange,
 }: ImageUploadProps) => {
-  const [newImageUrl, setNewImageUrl] = React.useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadingImageUrl, setUploadingImageUrl] = useState<string | null>(null);
 
-  const handleAddImage = () => {
-    if (newImageUrl.trim()) {
-      onAdditionalImagesChange([...additionalImages, newImageUrl.trim()]);
-      setNewImageUrl('');
+  const handleAddImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const previewUrl = URL.createObjectURL(file);
+    setUploadingImageUrl(previewUrl);
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `project-images/${fileName}`;
+
+    const { error } = await supabase.storage.from('project-images').upload(filePath, file);
+    if (error) {
+      console.error('Upload error:', error.message);
+    } else {
+      const { data: publicUrl } = supabase.storage.from('project-images').getPublicUrl(filePath);
+      if (publicUrl?.publicUrl) {
+        onAdditionalImagesChange([...additionalImages, publicUrl.publicUrl]);
+      }
     }
+
+    setUploading(false);
+    setUploadingImageUrl(null);
   };
 
   const handleRemoveAdditionalImage = (index: number) => {
@@ -46,8 +67,8 @@ export const ImageUpload = ({
         <div className="relative group border rounded-md p-2">
           {mainImageUrl ? (
             <>
-              <img 
-                src={mainImageUrl} 
+              <img
+                src={mainImageUrl}
                 alt="Main project image"
                 className="h-24 w-full object-cover rounded"
               />
@@ -77,15 +98,27 @@ export const ImageUpload = ({
           )}
         </div>
 
+        {/* Uploading Placeholder */}
+        {uploadingImageUrl && (
+          <div className="relative group border rounded-md p-2 animate-pulse bg-muted">
+            <img
+              src={uploadingImageUrl}
+              alt="Uploading..."
+              className="h-24 w-full object-cover rounded opacity-50"
+            />
+            <Badge className="absolute top-2 right-2">Uploading...</Badge>
+          </div>
+        )}
+
         {/* Additional Images */}
         {additionalImages?.map((imageUrl, index) => (
           <div key={index} className="relative group border rounded-md p-2">
-            <img 
-              src={imageUrl} 
+            <img
+              src={imageUrl}
               alt={`Project image ${index + 1}`}
               className="h-24 w-full object-cover rounded"
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded gap-2">
               <Button
                 type="button"
                 variant="ghost"
@@ -115,22 +148,22 @@ export const ImageUpload = ({
           </div>
         ))}
 
-        {/* Add New Image Input */}
+        {/* File Upload */}
         <div className="h-24 w-full flex items-center justify-center border-2 border-dashed rounded p-2">
           <div className="w-full">
             <Input
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Add image URL"
+              type="file"
+              onChange={handleAddImage}
+              accept="image/*"
               className="mb-2"
             />
-            <Button 
+            <Button
               type="button"
-              onClick={handleAddImage}
+              disabled={uploading}
               className="w-full"
               size="sm"
             >
-              Add Image
+              Upload Image
             </Button>
           </div>
         </div>

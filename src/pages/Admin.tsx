@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import AdminHome from '../components/admin/AdminHome';
 
 const Admin = () => {
   const { t } = useLanguage();
@@ -66,6 +67,7 @@ const Admin = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-5 mb-8">
+          <TabsTrigger value="Home">Home</TabsTrigger>
           <TabsTrigger value="about">About Me</TabsTrigger>
           <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
@@ -73,6 +75,9 @@ const Admin = () => {
           <TabsTrigger value="contact">Contact</TabsTrigger>
         </TabsList>
         <div className="border rounded-lg p-6">
+          <TabsContent value="Home">
+            <AdminHome />
+          </TabsContent>
           <TabsContent value="about">
             <AdminAbout />
           </TabsContent>

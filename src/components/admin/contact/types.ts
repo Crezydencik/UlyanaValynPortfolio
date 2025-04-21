@@ -8,6 +8,11 @@ export interface SocialLink {
   url: string;
   icon: string;
 }
+export interface HomeData {
+  id: string;
+  description: Record<Language, string>;
+  image_url?: string | null;
+}
 export interface AboutData {
   id: string;
   // title: Record<Language, string>;

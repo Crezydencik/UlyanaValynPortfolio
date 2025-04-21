@@ -1,70 +1,127 @@
+import React, { useEffect, useState } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Language } from '@/utils/languageUtils';
+import * as Icons from 'lucide-react';
 
-import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useSkills } from '@/hooks/useSkills';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Award } from 'lucide-react';
-import * as lucideIcons from 'lucide-react';
+interface Skill {
+  id: string;
+  name: Record<Language, string>;
+  category: string;
+  level: number;
+  icon?: string;
+}
 
-const SkillsSection = () => {
-  const { language } = useLanguage();
-  const { data: skills, isLoading, error } = useSkills();
+interface GroupedSkill {
+  category: string;
+  title: Record<Language, string>;
+  skills: Skill[];
+}
 
-  if (isLoading) {
-    return (
-      <section className="py-12">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            <Skeleton className="h-8 w-1/2 mx-auto" />
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="flex flex-col items-center p-4 border rounded-lg shadow-sm">
-                <Skeleton className="w-16 h-16 rounded-full mb-2" />
-                <Skeleton className="h-4 w-32 mb-1" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+const CATEGORY_TITLES: Record<string, Record<Language, string>> = {
+  journalism: {
+    en: 'Journalism',
+    ru: 'Журналистика',
+    pl: 'Dziennikarstwo'
+  },
+  'video-editing': {
+    en: 'Video Editing',
+    ru: 'Видеомонтаж',
+    pl: 'Montaż Wideo'
+  },
+  marketing: {
+    en: 'Marketing',
+    ru: 'Маркетинг',
+    pl: 'Marketing'
   }
+};
 
-  if (error) {
-    return <div className="text-red-500 text-center">Error loading skills.</div>;
-  }
+const DEFAULT_ICON_COMPONENT = Icons.CheckCircle ;
 
-  const renderSkillItem = (skill: any) => {
-    let IconComponent: React.ElementType = Award;
-    
-    if (skill.icon && typeof skill.icon === 'string' && skill.icon in lucideIcons) {
-      IconComponent = lucideIcons[skill.icon as keyof typeof lucideIcons] as React.ElementType;
-    }
-    
-    return (
-      <div key={skill.id} className="flex flex-col items-center p-4">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-          <IconComponent className="w-8 h-8 text-primary" />
-        </div>
-        <h3 className="text-lg font-semibold">{skill.name?.[language] || skill.name?.en}</h3>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-          <div className="bg-primary h-2.5 rounded-full" style={{ width: `${skill.level}%` }}></div>
-        </div>
-      </div>
-    );
-  };
+const SkillsSection: React.FC = () => {
+  const { t, language } = useLanguage();
+  const [groupedSkills, setGroupedSkills] = useState<GroupedSkill[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('skills').select('*');
+
+      if (error) {
+        console.error('Ошибка при загрузке:', error);
+        setLoading(false);
+        return;
+      }
+
+      const skills: Skill[] = Array.isArray(data)
+        ? data.map((s: any) => ({
+            ...s,
+            name: typeof s.name === 'string' ? JSON.parse(s.name) : s.name,
+            icon: s.icon || ''
+          }))
+        : [];
+
+      const groupsMap: Record<string, GroupedSkill> = {};
+
+      skills.forEach((skill) => {
+        const categoryId = skill.category;
+        if (!groupsMap[categoryId]) {
+          groupsMap[categoryId] = {
+            category: categoryId,
+            title: CATEGORY_TITLES[categoryId] || {
+              en: categoryId,
+              ru: categoryId,
+              pl: categoryId
+            },
+            skills: []
+          };
+        }
+        groupsMap[categoryId].skills.push(skill);
+      });
+
+      setGroupedSkills(Object.values(groupsMap));
+      setLoading(false);
+    };
+
+    fetchSkills();
+  }, []);
 
   return (
-    <section className="py-12">
-      <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-8">Skills</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skills?.map(renderSkillItem)}
-        </div>
+    <section id="skills" className="section-container bg-portfolio-gray">
+      <div className="text-center mb-16">
+        <h2 className="section-title">{t('skills.title')}</h2>
+        <p className="section-subtitle">{t('skills.subtitle')}</p>
       </div>
+
+      {loading ? (
+        <p className="text-center">Загрузка...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {groupedSkills.map((group) => (
+            <div key={group.category} className="card-skill">
+              <h3 className="text-xl font-semibold mb-6">
+                {group.title[language]}
+              </h3>
+              <ul className="space-y-2">
+                {group.skills.map((skill) => {
+                  const IconComponent =
+                    Icons[skill.icon as keyof typeof Icons] || DEFAULT_ICON_COMPONENT;
+
+                  return (
+                    <li key={skill.id} className="flex items-center gap-3">
+                      <IconComponent className="text-primary w-5 h-5 MR-3" />
+                      <span className="font-medium">{skill.name[language]}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
 
-export default SkillsSection;
+export default SkillsSection; 
