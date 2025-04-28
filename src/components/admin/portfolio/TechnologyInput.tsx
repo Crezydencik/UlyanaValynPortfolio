@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -15,8 +14,9 @@ export const TechnologyInput = ({ technologies, onTechnologyChange }: Technology
   const [newTechnology, setNewTechnology] = useState('');
 
   const handleAddTechnology = () => {
-    if (newTechnology.trim()) {
-      onTechnologyChange([...technologies, newTechnology.trim()]);
+    const tech = newTechnology.trim();
+    if (tech && !technologies.includes(tech)) {
+      onTechnologyChange([...technologies, tech]);
       setNewTechnology('');
     }
   };

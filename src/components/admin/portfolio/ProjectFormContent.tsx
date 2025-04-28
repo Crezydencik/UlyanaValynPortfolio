@@ -1,13 +1,12 @@
-
 import React, { useState } from "react";
 import { RichTextEditor } from "./RichTextEditor";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ProjectFormMediaTabs } from "./ProjectFormMediaTabs";
-import { Textarea } from "@/components/ui/textarea";
+import { ProjectFormPhotos } from "./ProjectFormPhotos";
 import { ProjectFormVideo } from "./ProjectFormVideo";
 import { ProjectFormLanguages } from "./ProjectFormLanguages";
-import { ProjectFormPhotos } from "./ProjectFormPhotos";
+import { TechnologyInput } from "./TechnologyInput"; // подключаем!
+import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProjectFormContentProps {
@@ -23,6 +22,8 @@ interface ProjectFormContentProps {
   onMainPhotoChange: (url: string) => void;
   videoUrl: string;
   onVideoUrlChange: (url: string) => void;
+  technologies: string[]; // <=== ДОБАВЛЕНО
+  onTechnologiesChange: (technologies: string[]) => void; // <=== ДОБАВЛЕНО
 }
 
 export const ProjectFormContent = ({
@@ -37,7 +38,9 @@ export const ProjectFormContent = ({
   mainPhoto,
   onMainPhotoChange,
   videoUrl,
-  onVideoUrlChange
+  onVideoUrlChange,
+  technologies, // <- получили
+  onTechnologiesChange // <- получили
 }: ProjectFormContentProps) => {
   const { t } = useLanguage();
   const [mediaType, setMediaType] = useState<"photo" | "video">("photo");
@@ -55,29 +58,36 @@ export const ProjectFormContent = ({
       <Label>Short Description</Label>
       <Textarea
         value={shortDescription}
-        onChange={e => onShortDescriptionChange(e.target.value)}
+        onChange={(e) => onShortDescriptionChange(e.target.value)}
         className="min-h-[80px]"
         placeholder={`Enter a short description (${selectedLanguage})`}
       />
 
+      {/* Новый блок технологий */}
+      <TechnologyInput
+        technologies={technologies}
+        onTechnologyChange={onTechnologiesChange}
+      />
+
+      {/* Переключение фото/видео */}
       <div className="flex gap-2 mt-2">
-        <Button 
-          type="button" 
-          variant={mediaType === "photo" ? "secondary" : "outline"} 
+        <Button
+          type="button"
+          variant={mediaType === "photo" ? "secondary" : "outline"}
           onClick={() => setMediaType("photo")}
         >
           Photo
         </Button>
-        <Button 
-          type="button" 
-          variant={mediaType === "video" ? "secondary" : "outline"} 
+        <Button
+          type="button"
+          variant={mediaType === "video" ? "secondary" : "outline"}
           onClick={() => setMediaType("video")}
         >
           Video
         </Button>
       </div>
 
-      {/* Media type switch - show images or video UI */}
+      {/* Фото или видео в зависимости от выбора */}
       {mediaType === "photo" ? (
         <ProjectFormPhotos
           photos={photos}
@@ -86,7 +96,10 @@ export const ProjectFormContent = ({
           onMainPhotoChange={onMainPhotoChange}
         />
       ) : (
-        <ProjectFormVideo videoUrl={videoUrl} onVideoUrlChange={onVideoUrlChange} />
+        <ProjectFormVideo
+          videoUrl={videoUrl}
+          onVideoUrlChange={onVideoUrlChange}
+        />
       )}
     </div>
   );

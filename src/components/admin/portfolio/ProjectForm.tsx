@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ProjectFormBasicFields } from "./ProjectFormBasicFields";
 import { ProjectFormContent } from "./ProjectFormContent";
@@ -20,7 +19,6 @@ export const ProjectForm = ({
   const [localPhotos, setLocalPhotos] = useState<string[]>(currentProject.additional_images || []);
   const mainPhoto = currentProject.image_url || null;
 
-  // Handle photo changes and update the project
   const handlePhotosChange = (urls: string[]) => {
     setLocalPhotos(urls);
     onProjectChange({ ...currentProject, additional_images: urls });
@@ -30,7 +28,6 @@ export const ProjectForm = ({
     onProjectChange({ ...currentProject, image_url: url });
   };
 
-  // Handle text changes based on current language
   const handleDescriptionChange = (value: string) => {
     onProjectChange({
       ...currentProject,
@@ -51,11 +48,17 @@ export const ProjectForm = ({
     });
   };
 
-  // Video handling
   const handleVideoUrlChange = (url: string) => {
     onProjectChange({
       ...currentProject,
       video_url: url,
+    });
+  };
+
+  const handleTechnologiesChange = (newTechnologies: string[]) => {
+    onProjectChange({
+      ...currentProject,
+      technologies: newTechnologies,
     });
   };
 
@@ -79,6 +82,8 @@ export const ProjectForm = ({
         onMainPhotoChange={handleMainPhotoChange}
         videoUrl={currentProject.video_url || ""}
         onVideoUrlChange={handleVideoUrlChange}
+        technologies={currentProject.technologies || []}
+        onTechnologiesChange={handleTechnologiesChange}
       />
     </div>
   );
