@@ -29,7 +29,7 @@ export const TechnologyInput = ({ technologies, onTechnologyChange }: Technology
 
   return (
     <div>
-      <Label>Technologies</Label>
+      <Label>Category</Label>
       <div className="flex flex-wrap gap-2 mt-2">
         {technologies?.map((tech, index) => (
           <Badge key={index} variant="secondary" className="flex items-center gap-1">

@@ -52,7 +52,10 @@ export default {
     noProjects: 'No projects available.',
     viewProject: 'View Project',
     backToHome: 'Back to Home',
-    projectNotFound: 'Project not found'
+    projectNotFound: 'Project not found',
+    moreProjects: 'More project',
+    allProjects: 'All my project',
+    viewAll: "View project"
   },
   certifications: {
     title: 'Certifications',
@@ -70,6 +73,7 @@ export default {
       date: '2019'
     }
   },
+    
   contact: {
     title: 'Get in Touch',
     subtitle: 'Feel free to contact me if you have any questions or opportunities.',

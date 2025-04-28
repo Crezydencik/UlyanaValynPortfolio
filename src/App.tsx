@@ -13,6 +13,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import React from 'react';
+import AllProjectsPage from "./pages/AllProjectsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +37,7 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/projects" element={<AllProjectsPage />} /> {/* вот это добавляем */}
                   <Route path="/project/:slug" element={<Project />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route

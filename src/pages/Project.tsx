@@ -106,25 +106,27 @@ const ProjectPage = () => {
 
           </div>
 
-
-          <div>
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <ImageIcon className="mr-2 h-6 w-6" /> {t('photos')}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {project.additional_images
-                ?.filter((imageUrl) => imageUrl !== project.cover_image)
-                .map((imageUrl, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={imageUrl}
-                      alt={`${project.title} - ${index + 1}`}
-                      className="w-full rounded-lg aspect-square object-cover"
-                      />
-                  </div>
-                ))}
-            </div>
+          {project.additional_images?.filter((imageUrl) => imageUrl !== project.cover_image).length > 0 && (
+  <div className="mb-12">
+    <h2 className="text-2xl font-bold mb-6 flex items-center">
+      <ImageIcon className="mr-2 h-6 w-6" /> {t('photos')}
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {project.additional_images
+        ?.filter((imageUrl) => imageUrl !== project.cover_image)
+        .map((imageUrl, index) => (
+          <div key={index} className="relative group">
+            <img
+              src={imageUrl}
+              alt={`${project.title} - ${index + 1}`}
+              className="w-full rounded-lg aspect-square object-cover"
+            />
           </div>
+        ))}
+    </div>
+  </div>
+)}
+
                       {embedUrl && (
                         <div className="mb-12 mt-12 ">
                           <h2 className="text-2xl font-bold mb-6 flex items-center">

@@ -52,7 +52,10 @@ export default {
     noProjects: 'Нет доступных проектов.',
     viewProject: 'Посмотреть проект',
     backToHome: 'Вернуться на главную',
-    projectNotFound: 'Проект не найден'
+    projectNotFound: 'Проект не найден',
+    moreProjects: "Больше проектов",
+    allProjects: "Все мои проекты",
+    viewAll: "Смотреть проект"
   },
   certifications: {
     title: 'Сертификаты',
