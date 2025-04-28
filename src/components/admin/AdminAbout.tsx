@@ -63,20 +63,48 @@ const AdminAbout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // 1. Загружаем текущее состояние из базы
+    const { data: existingData, error: fetchError } = await supabase
+      .from('about')
+      .select('*')
+      .single<AboutData>();
+  
+    if (fetchError || !existingData) {
+      console.error('Ошибка получения текущих данных:', fetchError);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось получить текущее содержимое для обновления',
+        variant: 'destructive',
+      });
+      return;
+    }
+  
+    // 2. Обновляем только выбранный язык
+    const updatedSubtitle = {
+      ...(existingData.subtitle || {}),
+      [selectedLanguage]: formData.subtitle,
+    };
+  
+    const updatedDescription = {
+      ...(existingData.description || {}),
+      [selectedLanguage]: formData.description,
+    };
+  
+    // 3. Сохраняем обратно в базу
     const { data, error } = await supabase
       .from('about')
       .upsert([
         {
           id: aboutId || crypto.randomUUID(),
-          subtitle: { [selectedLanguage]: formData.subtitle },
-          description: { [selectedLanguage]: formData.description },
+          subtitle: updatedSubtitle,
+          description: updatedDescription,
           image_url: formData.imageUrl,
         }
       ], { onConflict: 'id' })
       .select()
       .single();
-
+  
     if (error) {
       console.error('Ошибка сохранения:', error);
       toast({
@@ -90,8 +118,9 @@ const AdminAbout = () => {
         title: 'Успешно',
         description: `Секция обновлена (${languages[selectedLanguage]})`,
       });
-    } 
+    }
   };
+  
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
