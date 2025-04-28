@@ -22,7 +22,22 @@ const iconOptions = [
   { value: 'Camera', label: '📷 Cinematography' },
   { value: 'BarChart2', label: '📊 Analytics' },
   { value: 'Users2', label: '👥 Teamwork' },
+
+  // Новые по твоим скриншотам:
+  { value: 'Activity', label: '📈 Activity' },
+  { value: 'AlarmClockCheck', label: '⏰ Alarm Clock Check' },
+  { value: 'Bookmark', label: '🔖 Bookmark' },
+  { value: 'Pencil', label: '✏️ Pencil' },
+  { value: 'CalendarDays', label: '📅 Calendar Days' },
+  { value: 'Lightbulb', label: '💡 Idea' },
+  { value: 'Focus', label: '🎯 Focus' },
+  { value: 'Wand2', label: '🪄 Magic Wand' },
+  { value: 'WandSparkles', label: '✨ Sparkles' },
+  { value: 'Video', label: '🎥 Video Camera' },  // (Повтор иконки Video — можно уточнить)
+  { value: 'ListVideo', label: '📃 Video Playlist' },
+  { value: 'Users', label: '👥 Group of Users' },
 ];
+
 
 const AdminSkills = () => {
   const { t, language } = useLanguage();
