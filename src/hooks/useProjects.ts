@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Project } from '@/types/project';
@@ -15,6 +14,8 @@ interface ProjectData {
   technologies: string[] | null;
   created_at: string;
   slug: string;
+  is_priority?: boolean;
+  order?: number;
 }
 
 export const useProjects = () => {
@@ -23,11 +24,12 @@ export const useProjects = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('*');
+        .select('*')
+        .order('is_priority', { ascending: false })
+        .order('order', { ascending: true });
 
       if (error) throw error;
-      
-      // Transform the data to match the Project type
+
       const projects = data.map((project: ProjectData) => ({
         ...project,
         description: typeof project.description === 'string' 
@@ -37,9 +39,9 @@ export const useProjects = () => {
           ? JSON.parse(project.short_description) 
           : project.short_description,
         additional_images: project.additional_images || [],
-        cover_image: project.cover_image || project.image_url
+        cover_image: project.cover_image || project.image_url,
       }));
-      
+
       return projects as Project[];
     },
   });
@@ -56,8 +58,7 @@ export const useProject = (slug: string) => {
         .single();
 
       if (error) throw error;
-      
-      // Transform the data to match the Project type
+
       const project = {
         ...data,
         description: typeof data.description === 'string' 
@@ -67,9 +68,9 @@ export const useProject = (slug: string) => {
           ? JSON.parse(data.short_description) 
           : data.short_description,
         additional_images: data.additional_images || [],
-        cover_image: data.cover_image || data.image_url
+        cover_image: data.cover_image || data.image_url,
       };
-      
+
       return project as Project;
     },
     enabled: !!slug,

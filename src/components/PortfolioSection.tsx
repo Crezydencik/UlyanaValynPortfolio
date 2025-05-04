@@ -40,6 +40,12 @@ const PortfolioSection: React.FC = () => {
     );
   }
 
+  const displayedProjects = (() => {
+    const priority = projects.filter(p => p.is_priority);
+    const rest = projects.filter(p => !p.is_priority);
+    return [...priority, ...rest].slice(0, 4);
+  })();
+
   return (
     <section id="portfolio" className="section-container bg-white">
       <div className="text-center mb-16">
@@ -48,7 +54,7 @@ const PortfolioSection: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {projects.slice(0,4 ).map((project) => (
+        {displayedProjects.map((project) => (
           <div
             key={project.id}
             className="portfolio-card animate-on-scroll group border rounded-lg overflow-hidden shadow-sm bg-white"
@@ -62,8 +68,7 @@ const PortfolioSection: React.FC = () => {
                 />
               )}
 
-              {/* Технологии поверх картинки */}
-              {project.technologies && project.technologies.length > 0 && (
+              {project.technologies?.length > 0 && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-4 py-2 flex flex-wrap gap-2">
                   {project.technologies.map((tech, index) => (
                     <Badge
@@ -76,7 +81,6 @@ const PortfolioSection: React.FC = () => {
                 </div>
               )}
 
-              {/* Затемнение и кнопка при наведении */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Link
                   to={`/project/${project.slug}`}
@@ -108,7 +112,6 @@ const PortfolioSection: React.FC = () => {
         ))}
       </div>
 
-      {/* Кнопка "Больше проектов" */}
       <div className="text-center mt-10">
         <Link
           to="/projects"

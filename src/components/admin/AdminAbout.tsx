@@ -16,12 +16,13 @@ const AdminAbout = () => {
   const { toast } = useToast();
 
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
-  const [formData, setFormData] = useState({
-    subtitle: '',
-    description: '',
-    imageUrl: '',
+  const [formDataByLang, setFormDataByLang] = useState<Record<Language, { subtitle: string; description: string }>>({
+    en: { subtitle: '', description: '' },
+    ru: { subtitle: '', description: '' },
+    pl: { subtitle: '', description: '' },
   });
 
+  const [imageUrl, setImageUrl] = useState('');
   const [aboutId, setAboutId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,19 +43,29 @@ const AdminAbout = () => {
       }
 
       setAboutId(data.id);
-      setFormData({
-        subtitle: data.subtitle?.[selectedLanguage] || '',
-        description: data.description?.[selectedLanguage] || '',
-        imageUrl: data.image_url || '',
-      });
+      setImageUrl(data.image_url || '');
+
+      const updated = { ...formDataByLang };
+      for (const lang of Object.keys(languages) as Language[]) {
+        updated[lang] = {
+          subtitle: data.subtitle?.[lang] || '',
+          description: data.description?.[lang] || '',
+        };
+      }
+      setFormDataByLang(updated);
     };
 
     fetchAbout();
-  }, [selectedLanguage, toast]);
+  }, [toast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleChange = (lang: Language, field: 'subtitle' | 'description', value: string) => {
+    setFormDataByLang(prev => ({
+      ...prev,
+      [lang]: {
+        ...prev[lang],
+        [field]: value,
+      },
+    }));
   };
 
   const handleLanguageChange = (value: string) => {
@@ -63,13 +74,12 @@ const AdminAbout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // 1. Загружаем текущее состояние из базы
+
     const { data: existingData, error: fetchError } = await supabase
       .from('about')
       .select('*')
       .single<AboutData>();
-  
+
     if (fetchError || !existingData) {
       console.error('Ошибка получения текущих данных:', fetchError);
       toast({
@@ -79,19 +89,17 @@ const AdminAbout = () => {
       });
       return;
     }
-  
-    // 2. Обновляем только выбранный язык
+
     const updatedSubtitle = {
       ...(existingData.subtitle || {}),
-      [selectedLanguage]: formData.subtitle,
+      [selectedLanguage]: formDataByLang[selectedLanguage].subtitle,
     };
-  
+
     const updatedDescription = {
       ...(existingData.description || {}),
-      [selectedLanguage]: formData.description,
+      [selectedLanguage]: formDataByLang[selectedLanguage].description,
     };
-  
-    // 3. Сохраняем обратно в базу
+
     const { data, error } = await supabase
       .from('about')
       .upsert([
@@ -99,12 +107,12 @@ const AdminAbout = () => {
           id: aboutId || crypto.randomUUID(),
           subtitle: updatedSubtitle,
           description: updatedDescription,
-          image_url: formData.imageUrl,
+          image_url: imageUrl,
         }
       ], { onConflict: 'id' })
       .select()
       .single();
-  
+
     if (error) {
       console.error('Ошибка сохранения:', error);
       toast({
@@ -120,18 +128,16 @@ const AdminAbout = () => {
       });
     }
   };
-  
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `about/${fileName}`;
-  
-    const bucket = 'juliana'; // ✅ используем один и тот же bucket
-  
+    const bucket = 'juliana';
+
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
@@ -139,7 +145,7 @@ const AdminAbout = () => {
         upsert: true,
         contentType: file.type,
       });
-  
+
     if (uploadError) {
       console.error('Ошибка загрузки в Storage:', uploadError);
       toast({
@@ -149,11 +155,11 @@ const AdminAbout = () => {
       });
       return;
     }
-  
+
     const { data: imageData, error: publicUrlError } = supabase.storage
       .from(bucket)
       .getPublicUrl(filePath);
-  
+
     if (publicUrlError || !imageData?.publicUrl) {
       console.error('Ошибка получения ссылки:', publicUrlError);
       toast({
@@ -163,22 +169,16 @@ const AdminAbout = () => {
       });
       return;
     }
-  
-    console.log('Загруженное изображение:', imageData.publicUrl);
-  
-    setFormData(prev => ({
-      ...prev,
-      imageUrl: imageData.publicUrl,
-    }));
-  
+
+    setImageUrl(imageData.publicUrl);
+
     toast({
       title: 'Изображение загружено',
       description: 'Ссылка успешно обновлена',
     });
-  
+
     e.target.value = '';
   };
-  
 
   return (
     <Card>
@@ -194,63 +194,70 @@ const AdminAbout = () => {
             ))}
           </TabsList>
 
-          <TabsContent value={selectedLanguage}>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="subtitle">Подзаголовок</Label>
-                  <Input
-                    id="subtitle"
-                    name="subtitle"
-                    value={formData.subtitle}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Описание</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    rows={8}
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="image">Изображение</Label>
-                  <div className="mt-2 flex items-start space-x-4">
-                    <div className="w-32 h-32 overflow-hidden rounded-lg border bg-gray-100 flex items-center justify-center">
-                      {formData.imageUrl ? (
-                        <img
-                          src={formData.imageUrl}
-                          alt="Превью"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-400">Нет изображения</span>
-                      )}
-                    </div>
-                    <div className="space-y-2">
+          {Object.entries(languages).map(([code]) => {
+            const lang = code as Language;
+            return (
+              <TabsContent key={lang} value={lang}>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor={`subtitle-${lang}`}>Подзаголовок</Label>
                       <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="max-w-sm"
+                        id={`subtitle-${lang}`}
+                        name="subtitle"
+                        value={formDataByLang[lang]?.subtitle || ''}
+                        onChange={(e) => handleChange(lang, 'subtitle', e.target.value)}
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Рекомендуемый размер: 800x800px
-                      </p>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <Button type="submit">Сохранить изменения</Button>
-            </form>
-          </TabsContent>
+                    <div>
+                      <Label htmlFor={`description-${lang}`}>Описание</Label>
+                      <Textarea
+                        id={`description-${lang}`}
+                        name="description"
+                        rows={8}
+                        value={formDataByLang[lang]?.description || ''}
+                        onChange={(e) => handleChange(lang, 'description', e.target.value)}
+                      />
+                    </div>
+
+                    {lang === selectedLanguage && (
+                      <div>
+                        <Label htmlFor="image">Изображение</Label>
+                        <div className="mt-2 flex items-start space-x-4">
+                          <div className="w-32 h-32 overflow-hidden rounded-lg border bg-gray-100 flex items-center justify-center">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt="Превью"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xs text-gray-400">Нет изображения</span>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Input
+                              id="image"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="max-w-sm"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Рекомендуемый размер: 800x800px
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button type="submit">Сохранить изменения</Button>
+                </form>
+              </TabsContent>
+            );
+          })}
         </Tabs>
       </CardContent>
     </Card>

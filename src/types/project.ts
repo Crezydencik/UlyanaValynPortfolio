@@ -11,4 +11,6 @@ export interface Project {
   technologies: string[];
   created_at: string;
   slug: string;
+  is_priority?: boolean;
+  order?: number;
 }
